@@ -20,34 +20,37 @@ public:
 	}
 
 private: 
-	string sResourcePackName = "resources.bxc";
+	string sResourcePackName = "./resources.bxc_pack";
+	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
 	olc::Sprite* sprBackground;
 	olc::Decal* decBackground;
-	olc::ResourcePack RP;
-	int nLayerBackground;
-	int nLayerMain;
+	olc::ResourcePack* RP = new olc::ResourcePack();
+	uint32_t nLayerBackground = 1;
+	uint32_t nLayerMain = 2;
 
 public:
 	bool OnUserCreate() override
 	{
-		RP.AddFile("C:\\Users\\spej\\Desktop\\background.png");
-		RP.SavePack(sResourcePackName, sResourcePackName);
+		RP->AddFile("./background.png");
+		RP->SavePack(sResourcePackName, sResourcePackKey);
 
-		RP.LoadPack(sResourcePackName, sResourcePackName);
+		if (!RP->LoadPack(sResourcePackName, sResourcePackKey))
+		{
+			DrawString(4, 4, "FATAL ERROR: Loading " + sResourcePackName + " failed.", olc::RED, 2);
+			DrawString(4, 28, "The file might be corrupted, or it doesn't exist.", olc::RED, 2);
+		}
 
 
-		sprBackground = new olc::Sprite();
+		sprBackground = new olc::Sprite("./background.png");
 		decBackground = new olc::Decal(sprBackground);
 
-		/* Creates layers */
-		nLayerBackground = CreateLayer();
-		nLayerMain = CreateLayer();
-		olc::ResourcePack();
 
 		SetDrawTarget(nLayerBackground);
-		DrawDecal({ 0, 0 }, decBackground, { 0, 0 });
+		Clear(olc::BLACK);
+		DrawSprite(0, 0, sprBackground, 0.5, 0.5);
 		EnableLayer(nLayerBackground, true);
 		SetDrawTarget(nLayerMain);
+		
 
 		return true;
 	}
@@ -55,6 +58,9 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 		Clear(olc::BLANK);
+		DrawDecal({ 0, 0 }, decBackground, { 0, 0 });
+		EnableLayer(nLayerMain, true);
+
 		return true;
 	}
 };
