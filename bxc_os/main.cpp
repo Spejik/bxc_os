@@ -24,6 +24,7 @@ struct Circle {
 	float radius;
 	int id;
 	milliseconds placed;
+	olc::Pixel color;
 };
 
 class bxc_os : public olc::PixelGameEngine
@@ -37,15 +38,16 @@ public:
 private: 
 	Circle* circles;
 	int nLastCircle = 0;
+
 	string sResourcePackName = "./resources.bxc_pack";
 	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
-
 	olc::Sprite* sprBackground;
 	olc::Sprite* sprLogo;
 	olc::ResourcePack* RP = new olc::ResourcePack();
+	bool bResourcePackLoaded = false;
 
-	uint32_t nLayerBackground = 1;
-	uint32_t nLayerMain = 0;
+	int nLayerBackground;
+	int nLayerMain;
 
 	// If n is under 10 (9, 8, 7, ...), returns 09, 08, 07, ...
 	string PrependTime(int n) {
@@ -66,6 +68,22 @@ private:
 		return ((max - min) * ((float)rand() / RAND_MAX)) + min;
 	}
 
+	void CreateCircle(float fSourceX, float fSourceY)
+	{
+		nLastCircle++;
+		int id = nLastCircle;
+		circles[id].x = fSourceX;
+		circles[id].y = fSourceY;
+		circles[id].placed = TimeMS();
+		circles[id].radius = RandFloatRange(0.5f, 3.5f);
+		circles[id].id = id;
+		circles[id].color = olc::Pixel(rand() % 255, rand() % 255, rand() % 255);
+
+		cout << "[" << circles[id].placed.count() << "] New circle @ " << fSourceX << "-" << fSourceY
+			<< " with the radius of " << circles[id].radius
+			<< " and ID " << id << endl;
+	}
+
 public:
 	bool OnUserCreate() override
 	{
@@ -79,32 +97,58 @@ public:
 		//RP->AddFile("./assets/logo_b_84.png");
 		//RP->SavePack(sResourcePackName, sResourcePackKey);
 
-		if (!RP->LoadPack(sResourcePackName, sResourcePackKey))
-		{
-			DrawString(4, 4, "FATAL ERROR: Loading " + sResourcePackName + " failed.", olc::RED, 2);
-			DrawString(4, 28, "The file might be corrupted, or it doesn't exist.", olc::RED, 2);
-		}
-
-
+		// Loads Resource Pack
+		if (RP->LoadPack(sResourcePackName, sResourcePackKey))
+			bResourcePackLoaded = true;
+		else
+			return true;
+		
+		// Loads assets
 		sprBackground = new olc::Sprite("./assets/background.png", RP);
 		sprLogo = new olc::Sprite("./assets/logo_w_48.png", RP);
 
-		SetDrawTarget(nLayerBackground);
-		Clear(olc::BLACK);
-		//DrawRect(0, 0, ScreenWidth(), ScreenHeight(), olc::VERY_DARK_BLUE);
-		DrawSprite(0, 0, sprBackground, 0.5, 0.5);
+		// Creates layers
+		Clear(olc::BLANK);
+
+		nLayerMain = CreateLayer();
+		EnableLayer(nLayerMain, true);
+
+		nLayerBackground = CreateLayer();
 		EnableLayer(nLayerBackground, true);
+
+
+		// Draws the background
+		SetDrawTarget(nLayerBackground);
+		SetPixelMode(olc::Pixel::ALPHA);
+		DrawSprite(0, 0, sprBackground);
+		FillRect(0,0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
+		SetPixelMode(olc::Pixel::NORMAL);
 		SetDrawTarget(nLayerMain);
+
+		
 		
 		return true;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		// Clears the screen, so we don't have any pixels overlapping
+		SetDrawTarget(nLayerMain);
+		Clear(olc::BLANK);
+
+		if (!bResourcePackLoaded) 
+		{
+			Clear(olc::Pixel(5, 5, 10));
+			olc::Pixel pTextC = olc::Pixel(200, 20, 15);
+			DrawString(10, 12, "FATAL ERROR: Loading file '" + sResourcePackName + "' failed.", pTextC, 2);
+			DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
+			return true;
+		}
+
+
 		float fSourceX = GetMouseX();
 		float fSourceY = GetMouseY();
-		// Clears the screen, so we don't have any pixels overlapping
-		Clear(olc::BLANK);
+
 
 		// Taskbar Dimensions
 		int nTaskbarHeight = 48;
@@ -129,7 +173,7 @@ public:
 
 		// Creates the taskbar
 		SetPixelMode(olc::Pixel::ALPHA);
-		FillRect({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::Pixel(20, 20, 30, 1));
+		FillRect({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::Pixel(20, 20, 30, 150));
 		DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
 
 		// Inserts logo
@@ -141,25 +185,16 @@ public:
 
 		SetPixelMode(olc::Pixel::NORMAL);
 
+		// Create a circle
 		if (GetMouse(0).bPressed)
-		{
-			nLastCircle++;
-			int id = nLastCircle;
-			circles[id].x = fSourceX;
-			circles[id].y = fSourceY;
-			circles[id].placed = TimeMS();
-			circles[id].radius = RandFloatRange(0.5f, 3.5f);
-			circles[id].id = id;
-			cout << "[" << circles[id].placed.count() << "] New circle @ " << fSourceX << "-" << fSourceY
-				 << " with the radius of " << circles[id].radius
-				 << " and ID " << id << endl;
-		}
+			CreateCircle(fSourceX, fSourceY);
+		
 
+		// Drawing circles
 		for (int i = 1; i <= nLastCircle; i++)
-		{
 			if (TimeMS().count() - circles[i].placed.count() < 3000)
-				DrawCircle(circles[i].x, circles[i].y, (circles[i].radius) * 20, olc::WHITE);
-		}
+				DrawCircle(circles[i].x, circles[i].y, (circles[i].radius) * 20, circles[i].color);
+			
 
 
 		return true;
@@ -181,10 +216,14 @@ int main()
 	if (os.Construct(nWidth, nHeight, nPixel, nPixel, bUseFullScreen, bUseVsync))
 		os.Start();
 	else
+	{
 		cout << endl
-		     << "    o===================================o    " << endl
-		     << "    |   Constructing BXC OS failed :(   |    " << endl
-		     << "    o===================================o    " << endl;
+			<< "    o===================================o    " << endl
+			<< "    |   Constructing BXC OS failed :(   |    " << endl
+			<< "    o===================================o    " << endl;
 
-	cin.get(); system("pause"); return 0;
+		cin.get(); system("pause"); return 0;
+	}
+
+	return 0;
 }
