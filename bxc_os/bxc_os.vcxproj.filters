@@ -28,11 +28,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="background.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="resources.bxc_pack">
       <Filter>Resource Files</Filter>
     </None>
