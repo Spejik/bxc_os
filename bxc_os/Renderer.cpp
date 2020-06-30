@@ -54,6 +54,22 @@ void Renderer::PackageResourcePack()
 	RP->SavePack(sResourcePackName, sResourcePackKey);
 }
 
+bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
+	cout << "point: " << point.x << ", " << point.y << endl 
+		 << "start: " << start.x << ", " << start.y << endl
+		 << "end: "   << end.x   << ", " << end.y   << endl << endl;
+	bool inX = false;
+	bool inY = false;
+
+	if (point.x > start.x && point.x < end.x)
+		inX = true;
+
+	if (point.y > start.y && point.y < end.y)
+		inY = true;
+	
+	return (inX && inY);
+}
+
 
 
 
@@ -86,16 +102,6 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Clears the screen, so we don't have any pixels overlapping
 	Clear(olc::BLANK);
 
-	
-	FillRect(200 - 4, 200 - 4, 300 + 4, 100 + 4, olc::Pixel(30, 30, 40));
-	FillRect(200 - 4, 200 - 4, 300 + 4, 20 + 4, olc::Pixel(10, 10, 20));
-	FillRect(225 - 4, 260 - 4, 240 + 4, 20 + 4, olc::Pixel(80, 80, 90));
-	DrawString(200, 200, "error");
-	DrawString(200, 230, "task failed suckcesckufully");
-	DrawString(225, 260, "ok, proceed to online banking");
-
-	return true;
-
 	if (!bResourcePackLoaded)
 	{
 		Clear(olc::Pixel(5, 5, 10));
@@ -107,7 +113,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 
 	SetPixelMode(olc::Pixel::ALPHA);
 	// === Background and darken
-	//DrawDecal({ 0, 0 }, decBackground);
+	DrawDecal({ 0, 0 }, decBackground);
 	FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
 	// ===
 	// === Taskbar
@@ -122,6 +128,9 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Gets system Time
 	time_t Time = time(0);
 	tm* TimeNow = localtime(&Time);
+
+	if (GetMouse(0).bPressed)
+		cout << (IsPointInRect({ fMouseX, fMouseY }, { 0,0 }, { 200, 200 }) ? "true" : "false") << endl;
 
 	// Create time
 	int nYear = TimeNow->tm_year + 1900;

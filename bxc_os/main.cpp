@@ -2,16 +2,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
-#include <ctime>
-#include <chrono>
 #include <string>
-#include <time.h>
 
 #include "Renderer.h"
 #include "Utils.h"
 
 using namespace std;
-using namespace chrono;
 
 
 struct window {

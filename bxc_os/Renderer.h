@@ -40,6 +40,7 @@ private:
 	milliseconds TimeMS();
 	float RandFloatRange(float min, float max);
 	void PackageResourcePack();
+	bool IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end);
 
 public:
 	bool OnUserCreate();

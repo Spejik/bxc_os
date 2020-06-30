@@ -1,7 +1,9 @@
 #include "Utils.h"
+
+#include <iostream>
+#include <string>
 #include <filesystem>
 #include <fstream>
-#include <string>
 #include "json.hpp"
 
 using json = nlohmann::json;
@@ -69,6 +71,7 @@ void Utils::SetConfigBoolField(string key, bool value)
 }
 void Utils::SetConfigStringField(string key, string value)
 {
+	cout << key << ": " << value << endl;
 	jsonConfig[key] = value;
 	SaveConfig();
 }
@@ -89,10 +92,19 @@ bool Utils::CreateAppDataDirectory()
 // Cretes config.json file in bxc_os appdata
 bool Utils::CreateConfigFile() {
 	try {
-		ofstream File(sConfigFileLocation);
-		File << "{}";
-		File.close();
-		return true;
+		struct stat buffer;
+		bool bConfigFileExists = (stat(sConfigFileLocation.c_str(), &buffer) == 0);
+
+		if (bConfigFileExists)
+			return true;
+		else 
+		{
+			ofstream File(sConfigFileLocation);
+			File << "{}";
+			File.close();
+			return true;
+		}
+		
 	}
 	catch (exception e) {
 		cout << e.what() << endl;
