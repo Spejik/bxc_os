@@ -13,13 +13,16 @@ int Utils::gcd(int a, int b)
 };
 
 bool Utils::LoadConfig() {
+	// Creates bxc_os/config.json in appdata
+	CreateAppDataDirectory();
+	CreateConfigFile();
+
 	string sConfig;
-	// Reads the config file in %appdata%/bxc_os
-	ifstream File(sConfigLocation);
-	// Assigns the file content to variable sConfig
+	// Reads the config file
+	ifstream File(sConfigFileLocation);
 	getline(File, sConfig);
-	// Close the file to prevent memory leaks
 	File.close();
+
 	// Parse json
 	jsonConfig = json::parse(sConfig);
 
@@ -28,7 +31,7 @@ bool Utils::LoadConfig() {
 
 // Serializes JSON config and writes it to the config file
 bool Utils::SaveConfig() {
-	ofstream File(sConfigLocation);
+	ofstream File(sConfigFileLocation);
 	File << jsonConfig.dump();
 	File.close();
 
@@ -66,7 +69,6 @@ void Utils::SetConfigBoolField(string key, bool value)
 }
 void Utils::SetConfigStringField(string key, string value)
 {
-	cout << key << ": " << value << endl;
 	jsonConfig[key] = value;
 	SaveConfig();
 }
@@ -76,8 +78,22 @@ void Utils::SetConfigStringField(string key, string value)
 bool Utils::CreateAppDataDirectory()
 {
 	try { 
-		return filesystem::create_directory(sConfigPath); 
+		return filesystem::create_directory(sConfigFilePath); 
 	} 
+	catch (exception e) {
+		cout << e.what() << endl;
+		return false;
+	}
+}
+
+// Cretes config.json file in bxc_os appdata
+bool Utils::CreateConfigFile() {
+	try {
+		ofstream File(sConfigFileLocation);
+		File << "{}";
+		File.close();
+		return true;
+	}
 	catch (exception e) {
 		cout << e.what() << endl;
 		return false;

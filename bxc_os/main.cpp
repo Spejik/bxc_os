@@ -7,7 +7,7 @@
 #include <string>
 #include <time.h>
 
-#include "RendererEngine.h"
+#include "Renderer.h"
 #include "Utils.h"
 
 using namespace std;
@@ -30,8 +30,8 @@ int main()
 	utils->LoadConfig();
 
 	// Window settings
-	int nWidth;
-	int nHeight;
+	int nWidth = 1280;
+	int nHeight = 720;
 	int nPixel = 1;
 	bool bUseFullScreen = false;
 	bool bUseVsync = false;
@@ -45,7 +45,7 @@ int main()
 		string sFullscreen = "";
 
 		// Fullscreen prompt
-		cout << "Run in fullscreen mode? [(y)es/no/(a)lways/(n)ever] : ";
+		cout << "Run in fullscreen mode? [(y)es/(n)o/(a)lways/(ne)ver] : ";
 		cin >> sFullscreen;
 
 		if (sFullscreen.rfind("y", 0) == 0)
@@ -53,23 +53,22 @@ int main()
 			bUseFullScreen = true;
 			utils->SetConfigStringField("fullscreen", "ask");
 		}
-		else if (sFullscreen.rfind("no", 0) == 0)
-		{
-			bUseFullScreen = false;
-			utils->SetConfigStringField("fullscreen", "ask");
-		}
-		else if (sFullscreen.rfind("a", 0) == 0)
-		{
-			bUseFullScreen = true;
-			utils->SetConfigStringField("fullscreen", "always");
-		}
-		else if (sFullscreen.rfind("n", 0) == 0)
+		// "never" must be before "no", so that it doesn't think user said "no", because of "n" :weSmart:
+		else if (sFullscreen.rfind("ne", 0) == 0) 
 		{
 			bUseFullScreen = false;
 			utils->SetConfigStringField("fullscreen", "never");
 		}
-		else
+		else if (sFullscreen.rfind("n", 0) == 0) 
 		{
+			bUseFullScreen = false;
+			utils->SetConfigStringField("fullscreen", "ask");
+		} 
+		else if (sFullscreen.rfind("a", 0) == 0) {
+			bUseFullScreen = true;
+			utils->SetConfigStringField("fullscreen", "always");
+		} 
+		else {
 			bUseFullScreen = false;
 			utils->SetConfigStringField("fullscreen", "ask");
 		}
@@ -81,39 +80,17 @@ int main()
 	else
 		bUseFullScreen = false;
 
-	
 
-	cout << "create " << utils->CreateAppDataDirectory() << endl;
-	cout << "get " << utils->GetConfigBoolField("fullscreen") << endl;
-
-	cout << bUseFullScreen << endl;
-	
+	// Gets screen dimensions, so the image isn't stretched or anything like that
 	if (bUseFullScreen)
 	{
-		cout << "Running in fullscreen mode" << endl;
-		cout << " - Calculating screen dimensions & ratio" << endl;
 		RECT rect;
 		GetWindowRect(GetDesktopWindow(), &rect);
-
 		nWidth = rect.right;
 		nHeight = rect.bottom;
-		int nRatio = utils->gcd(nWidth, nHeight);
-		int nRatioW = nWidth / nRatio;
-		int nRatioH = nHeight / nRatio;
-
-		cout << "   - dimensions " << nWidth << "x" << nHeight << endl;
-		cout << "   - gcd " << nRatio << endl;
-		cout << "   - aspect " << nWidth / nRatio << ":" << nHeight / nRatio << endl;
-	}
-	else
-	{
-		// Sets default 
-		cout << "Running in 1280x720 mode" << endl;
-		nWidth = 1280;
-		nHeight = 720;
 	}
 
-	RendererEngine os;
+	Renderer os;
 	if (os.Construct(nWidth, nHeight, nPixel, nPixel, bUseFullScreen, bUseVsync))
 		os.Start();
 	else

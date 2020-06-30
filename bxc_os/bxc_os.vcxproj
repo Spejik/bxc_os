@@ -142,13 +142,13 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="RendererEngine.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RendererEngine.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>

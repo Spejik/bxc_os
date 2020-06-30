@@ -8,10 +8,10 @@
 using namespace std;
 using namespace chrono;
 
-class RendererEngine : public olc::PixelGameEngine
+class Renderer : public olc::PixelGameEngine
 {
 public:
-	RendererEngine();
+	Renderer();
 
 private:
 	// =============

@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "RendererEngine.h"
+#include "Renderer.h"
 
 #include <iostream>
 #include <ctime>
@@ -13,7 +13,7 @@ using namespace std;
 using namespace chrono;
 
 
-RendererEngine::RendererEngine()
+Renderer::Renderer()
 {
 	sAppName = "BXC OS";
 }
@@ -23,7 +23,7 @@ RendererEngine::RendererEngine()
 // Private functions
 // =============
 
-string RendererEngine::PrependTime(int n)
+string Renderer::PrependTime(int n)
 {
 	string sNum = to_string(n);
 	if (n < 10)
@@ -32,26 +32,26 @@ string RendererEngine::PrependTime(int n)
 		return sNum;
 }
 
-milliseconds RendererEngine::TimeMS()
+milliseconds Renderer::TimeMS()
 {
 	return duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 }
 
-float RendererEngine::RandFloatRange(float min, float max)
+float Renderer::RandFloatRange(float min, float max)
 {
 	return ((max - min) * ((float)rand() / RAND_MAX)) + min;
 }
 
-void RendererEngine::PackageResourcePack()
+void Renderer::PackageResourcePack()
 {
-	//RP->AddFile("./assets/background.png");
-	//RP->AddFile("./assets/logo_tr_48.png");
-	//RP->AddFile("./assets/logo_tr_84.png");
-	//RP->AddFile("./assets/logo_w_48.png");
-	//RP->AddFile("./assets/logo_w_84.png");
-	//RP->AddFile("./assets/logo_b_48.png");
-	//RP->AddFile("./assets/logo_b_84.png");
-	//RP->SavePack(sResourcePackName, sResourcePackKey);
+	RP->AddFile("./assets/background.png");
+	RP->AddFile("./assets/logo_tr_48.png");
+	RP->AddFile("./assets/logo_tr_84.png");
+	RP->AddFile("./assets/logo_w_48.png");
+	RP->AddFile("./assets/logo_w_84.png");
+	RP->AddFile("./assets/logo_b_48.png");
+	RP->AddFile("./assets/logo_b_84.png");
+	RP->SavePack(sResourcePackName, sResourcePackKey);
 }
 
 
@@ -61,8 +61,9 @@ void RendererEngine::PackageResourcePack()
 // Public stuff
 // =============
 
-bool RendererEngine::OnUserCreate()
+bool Renderer::OnUserCreate()
 {
+	PackageResourcePack();
 
 	// Loads Resource Pack
 	if (RP->LoadPack(sResourcePackName, sResourcePackKey))
@@ -74,17 +75,27 @@ bool RendererEngine::OnUserCreate()
 	sprBackground = new olc::Sprite("./assets/background.png", RP);
 	sprLogo = new olc::Sprite("./assets/logo_w_48.png", RP);
 
-	// Creates layers
+
+
+	return true;
+}
+
+bool Renderer::OnUserUpdate(float fElapsedTime)
+{
+	// Clears the screen, so we don't have any pixels overlapping
+	//SetDrawTarget(nLayerMain);
 	Clear(olc::BLANK);
 
-	nLayerMain = CreateLayer();
-	EnableLayer(nLayerMain, true);
 
-	nLayerBackground = CreateLayer();
-	EnableLayer(nLayerBackground, true);
+	if (!bResourcePackLoaded)
+	{
+		Clear(olc::Pixel(5, 5, 10));
+		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
+		DrawString(10, 12, "FATAL ERROR: Loading file '" + sResourcePackName + "' failed.", pTextC, 2);
+		DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
+		return true;
+	}
 
-
-	// Draws the background
 	SetDrawTarget(nLayerBackground);
 	SetPixelMode(olc::Pixel::ALPHA);
 	// === Background and darken
@@ -96,27 +107,6 @@ bool RendererEngine::OnUserCreate()
 	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
 	// ===
 	SetPixelMode(olc::Pixel::NORMAL);
-	SetDrawTarget(nLayerMain);
-
-
-
-	return true;
-}
-
-bool RendererEngine::OnUserUpdate(float fElapsedTime)
-{
-	// Clears the screen, so we don't have any pixels overlapping
-	SetDrawTarget(nLayerMain);
-	Clear(olc::BLANK);
-
-	if (!bResourcePackLoaded)
-	{
-		Clear(olc::Pixel(5, 5, 10));
-		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
-		DrawString(10, 12, "FATAL ERROR: Loading file '" + sResourcePackName + "' failed.", pTextC, 2);
-		DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
-		return true;
-	}
 
 	float fMouseX = GetMouseX();
 	float fMouseY = GetMouseY();

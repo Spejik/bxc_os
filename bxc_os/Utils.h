@@ -11,9 +11,9 @@ class Utils
 {
 private:
 	string sAppdata = getenv("APPDATA");
-	string sConfigPath = sAppdata + "\\bxc_os\\";
-	string sConfigFile = "config.json";
-	string sConfigLocation = sConfigPath + sConfigFile;
+	string sConfigFilePath = sAppdata + "\\bxc_os\\";
+	string sConfigFileName = "config.json";
+	string sConfigFileLocation = sConfigFilePath + sConfigFileName;
 	json jsonConfig;
 
 
@@ -33,5 +33,6 @@ public:
 	void SetConfigStringField  (string key, string value);
 
 	bool CreateAppDataDirectory();
+	bool CreateConfigFile();
 };
 
