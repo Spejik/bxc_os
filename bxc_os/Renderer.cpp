@@ -54,18 +54,10 @@ void Renderer::PackageResourcePack()
 	RP->SavePack(sResourcePackName, sResourcePackKey);
 }
 
+// Calculates if a 2D point is within the boundaries of a rectangle
 bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
-	cout << "point: " << point.x << ", " << point.y << endl 
-		 << "start: " << start.x << ", " << start.y << endl
-		 << "end: "   << end.x   << ", " << end.y   << endl << endl;
-	bool inX = false;
-	bool inY = false;
-
-	if (point.x > start.x && point.x < end.x)
-		inX = true;
-
-	if (point.y > start.y && point.y < end.y)
-		inY = true;
+	bool inX = (point.x > start.x && point.x < end.x);
+	bool inY = (point.y > start.y && point.y < end.y);
 	
 	return (inX && inY);
 }
