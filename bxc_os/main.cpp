@@ -4,6 +4,7 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <string>
 #include <time.h>
 
 #include "RendererEngine.h"
@@ -22,28 +23,11 @@ struct window {
 };
 
 
-string PromptFullscreen() {
-	string sFullscreen = "";
-
-	// Fullscreen prompt
-	cout << "Run in fullscreen mode? [(y)es/no/(a)lways/(n)ever] ";
-	cin >> sFullscreen;
-
-	if (sFullscreen.rfind("y", 0) == 0)
-		return "yes";
-	else if (sFullscreen.rfind("a", 0))
-		return "yes";
-	else if (sFullscreen.rfind("n", 0))
-		return "no";
-	else
-		return "no"
-}
-
-
 int main()
 {
 	// Initializes Utils class
 	Utils* utils = new Utils();
+	utils->LoadConfig();
 
 	// Window settings
 	int nWidth;
@@ -52,33 +36,57 @@ int main()
 	bool bUseFullScreen = false;
 	bool bUseVsync = false;
 	
-	// Tries to read config value, else uses ask
-	string sCfgFullscreen = "ask";
-	sCfgFullscreen = utils->GetConfigStringField("fullscreen");
+	// Tries to read config's fullscreen value, else uses ask
+	string sCfgFullscreen = utils->GetConfigStringField("fullscreen");
 
 	// Asks user for fullscreen settings
-	if (sCfgFullscreen == "ask")
+	if (sCfgFullscreen == "ask" || sCfgFullscreen == "")
 	{
-		string sFullscreen = PromptFullscreen();
-		if (sFullscreen == "yes")
+		string sFullscreen = "";
+
+		// Fullscreen prompt
+		cout << "Run in fullscreen mode? [(y)es/no/(a)lways/(n)ever] : ";
+		cin >> sFullscreen;
+
+		if (sFullscreen.rfind("y", 0) == 0)
+		{
 			bUseFullScreen = true;
-		else if (sFullscreen == "no")
+			utils->SetConfigStringField("fullscreen", "ask");
+		}
+		else if (sFullscreen.rfind("no", 0) == 0)
+		{
 			bUseFullScreen = false;
+			utils->SetConfigStringField("fullscreen", "ask");
+		}
+		else if (sFullscreen.rfind("a", 0) == 0)
+		{
+			bUseFullScreen = true;
+			utils->SetConfigStringField("fullscreen", "always");
+		}
+		else if (sFullscreen.rfind("n", 0) == 0)
+		{
+			bUseFullScreen = false;
+			utils->SetConfigStringField("fullscreen", "never");
+		}
 		else
-			throw new runtime_error("unknown fullscreen settings value: " + sFullscreen);
+		{
+			bUseFullScreen = false;
+			utils->SetConfigStringField("fullscreen", "ask");
+		}
 	}
 	else if (sCfgFullscreen == "always")
 		bUseFullScreen = true;
 	else if (sCfgFullscreen == "never")
 		bUseFullScreen = false;
 	else
-		throw new runtime_error("unknown config[fullscreen] value: " + sCfgFullscreen);
+		bUseFullScreen = false;
 
 	
 
 	cout << "create " << utils->CreateAppDataDirectory() << endl;
 	cout << "get " << utils->GetConfigBoolField("fullscreen") << endl;
 
+	cout << bUseFullScreen << endl;
 	
 	if (bUseFullScreen)
 	{

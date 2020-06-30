@@ -22,18 +22,16 @@ public:
 	bool LoadConfig();
 	bool SaveConfig();
 
+	
 	int    GetConfigIntField   (string key);
 	bool   GetConfigBoolField  (string key);
 	string GetConfigStringField(string key);
 
-	void SetConfigField(string key, int bFullscreen);
-	void SetConfigField(string key, bool bFullscreen);
-	void SetConfigField(string key, string bFullscreen);
+	
+	void SetConfigIntField     (string key, int value);
+	void SetConfigBoolField    (string key, bool value);
+	void SetConfigStringField  (string key, string value);
 
 	bool CreateAppDataDirectory();
-	string sFullscreenInfoMessage = "You can change this setting in file " + sConfigLocation;
-
-
-
 };
 

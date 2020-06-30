@@ -20,7 +20,6 @@ bool Utils::LoadConfig() {
 	getline(File, sConfig);
 	// Close the file to prevent memory leaks
 	File.close();
-
 	// Parse json
 	jsonConfig = json::parse(sConfig);
 
@@ -38,29 +37,39 @@ bool Utils::SaveConfig() {
 
 
 int Utils::GetConfigIntField(string key)
-{ return jsonConfig[key]; }
+{
+	try { return (int) jsonConfig[key]; }
+	catch (exception e) { return 0; }
+}
 bool Utils::GetConfigBoolField(string key)
-{ return jsonConfig[key]; }
+{
+	try { return (bool) jsonConfig[key]; }
+	catch (exception e) { return false; }
+}
 string Utils::GetConfigStringField(string key)
-{ return jsonConfig[key]; }
+{
+	try { return (string) jsonConfig[key]; } 
+	catch (exception e) { return ""; }
+}
 
 
-void Utils::SetConfigField(string key, int value) 
+
+void Utils::SetConfigIntField(string key, int value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigField(string key, bool value) 
+void Utils::SetConfigBoolField(string key, bool value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigField(string key, string value)
+void Utils::SetConfigStringField(string key, string value)
 {
+	cout << key << ": " << value << endl;
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-
 
 
 // Creates bxc_os directory in %appdata%
