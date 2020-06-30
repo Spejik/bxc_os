@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include <ctime>
-#include <chrono> 
+#include <chrono>
 #include <time.h>
-#include "olcPixelGameEngine.h"
-#include "json.hpp"
+
+#include "RendererEngine.h"
+#include "Utils.h"
+
 using namespace std;
 using namespace chrono;
+
 
 struct window {
 	int px;
@@ -18,201 +21,91 @@ struct window {
 	string name;
 };
 
-struct Circle {
-	float x;
-	float y;
-	float radius;
-	int id;
-	milliseconds placed;
-	olc::Pixel color;
-};
 
-class bxc_os : public olc::PixelGameEngine
-{
-public:
-	bxc_os()
-	{
-		sAppName = "BXC OS";
-	}
+string PromptFullscreen() {
+	string sFullscreen = "";
 
-private: 
-	Circle* circles;
-	int nLastCircle = 0;
+	// Fullscreen prompt
+	cout << "Run in fullscreen mode? [(y)es/no/(a)lways/(n)ever] ";
+	cin >> sFullscreen;
 
-	string sResourcePackName = "./resources.bxc_pack";
-	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
-	olc::Sprite* sprBackground;
-	olc::Sprite* sprLogo;
-	olc::ResourcePack* RP = new olc::ResourcePack();
-	bool bResourcePackLoaded = false;
-
-	int nLayerBackground;
-	int nLayerMain;
-
-	// If n is under 10 (9, 8, 7, ...), returns 09, 08, 07, ...
-	string PrependTime(int n) {
-		string sNum = to_string(n);
-		if (n < 10)
-			return "0" + sNum;
-		else
-			return sNum;
-	}
-
-	milliseconds TimeMS() {
-		return duration_cast<milliseconds>(
-			system_clock::now().time_since_epoch());
-	}
-
-	float RandFloatRange(float min, float max)
-	{
-		return ((max - min) * ((float)rand() / RAND_MAX)) + min;
-	}
-
-	void CreateCircle(float fSourceX, float fSourceY)
-	{
-		nLastCircle++;
-		int id = nLastCircle;
-		circles[id].x = fSourceX;
-		circles[id].y = fSourceY;
-		circles[id].placed = TimeMS();
-		circles[id].radius = RandFloatRange(0.5f, 3.5f);
-		circles[id].id = id;
-		circles[id].color = olc::Pixel(rand() % 255, rand() % 255, rand() % 255);
-
-		cout << "[" << circles[id].placed.count() << "] New circle @ " << fSourceX << "-" << fSourceY
-			<< " with the radius of " << circles[id].radius
-			<< " and ID " << id << endl;
-	}
-
-public:
-	bool OnUserCreate() override
-	{
-		circles = new Circle[ScreenWidth() + ScreenHeight()];
-		//RP->AddFile("./assets/background.png");
-		//RP->AddFile("./assets/logo_tr_48.png");
-		//RP->AddFile("./assets/logo_tr_84.png");
-		//RP->AddFile("./assets/logo_w_48.png");
-		//RP->AddFile("./assets/logo_w_84.png");
-		//RP->AddFile("./assets/logo_b_48.png");
-		//RP->AddFile("./assets/logo_b_84.png");
-		//RP->SavePack(sResourcePackName, sResourcePackKey);
-
-		// Loads Resource Pack
-		if (RP->LoadPack(sResourcePackName, sResourcePackKey))
-			bResourcePackLoaded = true;
-		else
-			return true;
-		
-		// Loads assets
-		sprBackground = new olc::Sprite("./assets/background.png", RP);
-		sprLogo = new olc::Sprite("./assets/logo_w_48.png", RP);
-
-		// Creates layers
-		Clear(olc::BLANK);
-
-		nLayerMain = CreateLayer();
-		EnableLayer(nLayerMain, true);
-
-		nLayerBackground = CreateLayer();
-		EnableLayer(nLayerBackground, true);
-
-
-		// Draws the background
-		SetDrawTarget(nLayerBackground);
-		SetPixelMode(olc::Pixel::ALPHA);
-		DrawSprite(0, 0, sprBackground);
-		FillRect(0,0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
-		SetPixelMode(olc::Pixel::NORMAL);
-		SetDrawTarget(nLayerMain);
-
-		
-		
-		return true;
-	}
-
-	bool OnUserUpdate(float fElapsedTime) override
-	{
-		// Clears the screen, so we don't have any pixels overlapping
-		SetDrawTarget(nLayerMain);
-		Clear(olc::BLANK);
-
-		if (!bResourcePackLoaded) 
-		{
-			Clear(olc::Pixel(5, 5, 10));
-			olc::Pixel pTextC = olc::Pixel(200, 20, 15);
-			DrawString(10, 12, "FATAL ERROR: Loading file '" + sResourcePackName + "' failed.", pTextC, 2);
-			DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
-			return true;
-		}
-
-
-		float fSourceX = GetMouseX();
-		float fSourceY = GetMouseY();
-
-
-		// Taskbar Dimensions
-		int nTaskbarHeight = 48;
-		int nTaskbarX = 0;
-		int nTaskbarY = ScreenHeight() - nTaskbarHeight;
-		int nTaskbarW = ScreenWidth();
-		int nTaskbarH = ScreenHeight();
-
-		// Gets system Time
-		time_t Time = time(0);
-		tm* TimeNow = localtime(&Time);
-
-		// Create time
-		int nYear = TimeNow->tm_year + 1900;
-		int nMonth = TimeNow->tm_mon + 1;
-		int nDay = TimeNow->tm_mday;
-		int nHour = TimeNow->tm_hour;
-		int nMin = TimeNow->tm_min;
-		int nSec = TimeNow->tm_sec;
-		string sTime = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
-		string sDate = PrependTime(nDay) + "." + PrependTime(nMonth) + "." + PrependTime(nYear);
-
-		// Creates the taskbar
-		SetPixelMode(olc::Pixel::ALPHA);
-		FillRect({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::Pixel(20, 20, 30, 150));
-		DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
-
-		// Inserts logo
-		DrawSprite({ nTaskbarX, nTaskbarY }, sprLogo);
-
-		// Draws Time & Date
-		DrawString({ nTaskbarW - 92, nTaskbarH - 36 }, sTime, olc::WHITE, 1.5);
-		DrawString({ nTaskbarW - 100, nTaskbarH - 24 }, sDate, olc::WHITE, 1.5);
-
-		SetPixelMode(olc::Pixel::NORMAL);
-
-		// Create a circle
-		if (GetMouse(0).bPressed)
-			CreateCircle(fSourceX, fSourceY);
-		
-
-		// Drawing circles
-		for (int i = 1; i <= nLastCircle; i++)
-			if (TimeMS().count() - circles[i].placed.count() < 3000)
-				DrawCircle(circles[i].x, circles[i].y, (circles[i].radius) * 20, circles[i].color);
-			
-
-
-		return true;
-	}
-};
+	if (sFullscreen.rfind("y", 0) == 0)
+		return "yes";
+	else if (sFullscreen.rfind("a", 0))
+		return "yes";
+	else if (sFullscreen.rfind("n", 0))
+		return "no";
+	else
+		return "no"
+}
 
 
 int main()
 {
-	int nBonusSize = 280;
-	int nWidth = 1280 + nBonusSize;
-	int nHeight = 720 + nBonusSize;
+	// Initializes Utils class
+	Utils* utils = new Utils();
+
+	// Window settings
+	int nWidth;
+	int nHeight;
 	int nPixel = 1;
 	bool bUseFullScreen = false;
 	bool bUseVsync = false;
 	
+	// Tries to read config value, else uses ask
+	string sCfgFullscreen = "ask";
+	sCfgFullscreen = utils->GetConfigStringField("fullscreen");
 
-	bxc_os os;
+	// Asks user for fullscreen settings
+	if (sCfgFullscreen == "ask")
+	{
+		string sFullscreen = PromptFullscreen();
+		if (sFullscreen == "yes")
+			bUseFullScreen = true;
+		else if (sFullscreen == "no")
+			bUseFullScreen = false;
+		else
+			throw new runtime_error("unknown fullscreen settings value: " + sFullscreen);
+	}
+	else if (sCfgFullscreen == "always")
+		bUseFullScreen = true;
+	else if (sCfgFullscreen == "never")
+		bUseFullScreen = false;
+	else
+		throw new runtime_error("unknown config[fullscreen] value: " + sCfgFullscreen);
+
+	
+
+	cout << "create " << utils->CreateAppDataDirectory() << endl;
+	cout << "get " << utils->GetConfigBoolField("fullscreen") << endl;
+
+	
+	if (bUseFullScreen)
+	{
+		cout << "Running in fullscreen mode" << endl;
+		cout << " - Calculating screen dimensions & ratio" << endl;
+		RECT rect;
+		GetWindowRect(GetDesktopWindow(), &rect);
+
+		nWidth = rect.right;
+		nHeight = rect.bottom;
+		int nRatio = utils->gcd(nWidth, nHeight);
+		int nRatioW = nWidth / nRatio;
+		int nRatioH = nHeight / nRatio;
+
+		cout << "   - dimensions " << nWidth << "x" << nHeight << endl;
+		cout << "   - gcd " << nRatio << endl;
+		cout << "   - aspect " << nWidth / nRatio << ":" << nHeight / nRatio << endl;
+	}
+	else
+	{
+		// Sets default 
+		cout << "Running in 1280x720 mode" << endl;
+		nWidth = 1280;
+		nHeight = 720;
+	}
+
+	RendererEngine os;
 	if (os.Construct(nWidth, nHeight, nPixel, nPixel, bUseFullScreen, bUseVsync))
 		os.Start();
 	else
