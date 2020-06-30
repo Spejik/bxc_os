@@ -63,7 +63,7 @@ void Renderer::PackageResourcePack()
 
 bool Renderer::OnUserCreate()
 {
-	PackageResourcePack();
+	// PackageResourcePack();
 
 	// Loads Resource Pack
 	if (RP->LoadPack(sResourcePackName, sResourcePackKey))
@@ -74,8 +74,9 @@ bool Renderer::OnUserCreate()
 	// Loads assets
 	sprBackground = new olc::Sprite("./assets/background.png", RP);
 	sprLogo = new olc::Sprite("./assets/logo_w_48.png", RP);
-
-
+	// Converts asset sprites to decals
+	decBackground = new olc::Decal(sprBackground);
+	decLogo = new olc::Decal(sprLogo);
 
 	return true;
 }
@@ -83,9 +84,17 @@ bool Renderer::OnUserCreate()
 bool Renderer::OnUserUpdate(float fElapsedTime)
 {
 	// Clears the screen, so we don't have any pixels overlapping
-	//SetDrawTarget(nLayerMain);
 	Clear(olc::BLANK);
 
+	
+	FillRect(200 - 4, 200 - 4, 300 + 4, 100 + 4, olc::Pixel(30, 30, 40));
+	FillRect(200 - 4, 200 - 4, 300 + 4, 20 + 4, olc::Pixel(10, 10, 20));
+	FillRect(225 - 4, 260 - 4, 240 + 4, 20 + 4, olc::Pixel(80, 80, 90));
+	DrawString(200, 200, "error");
+	DrawString(200, 230, "task failed suckcesckufully");
+	DrawString(225, 260, "ok, proceed to online banking");
+
+	return true;
 
 	if (!bResourcePackLoaded)
 	{
@@ -96,10 +105,9 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
-	SetDrawTarget(nLayerBackground);
 	SetPixelMode(olc::Pixel::ALPHA);
 	// === Background and darken
-	DrawSprite(0, 0, sprBackground);
+	//DrawDecal({ 0, 0 }, decBackground);
 	FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
 	// ===
 	// === Taskbar
@@ -129,7 +137,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	SetPixelMode(olc::Pixel::ALPHA);
 
 	// Inserts logo
-	DrawSprite({ nTaskbarX, nTaskbarY }, sprLogo);
+	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
 
 	// Draws Time & Date
 	DrawString({ nTaskbarW - 92, nTaskbarH - 36 }, sTime, olc::WHITE, 1.5);

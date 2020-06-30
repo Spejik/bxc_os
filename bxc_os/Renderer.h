@@ -20,9 +20,6 @@ private:
 
 	bool bResourcePackLoaded = false;
 
-	int nLayerBackground;
-	int nLayerMain;
-
 	int nTaskbarHeight = 48;
 	int nTaskbarX = 0;
 	int nTaskbarY = ScreenHeight() - nTaskbarHeight;
@@ -33,6 +30,8 @@ private:
 	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
 	olc::Sprite* sprBackground;
 	olc::Sprite* sprLogo;
+	olc::Decal* decBackground;
+	olc::Decal* decLogo;
 	olc::ResourcePack* RP = new olc::ResourcePack();
 
 
