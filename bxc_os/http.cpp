@@ -12,7 +12,7 @@ string Http::Get(string endpoint)
 	CURL* curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, (sUrl + endpoint).c_str());
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
 
 		string readBuffer;
 		CURLcode result;
@@ -37,7 +37,6 @@ string Http::GetVersion() {
 	if (sRemoteVersion == "")
 		sRemoteVersion = Get("version");
 
-	cout << "Remote version: " << sRemoteVersion << endl;
 	return sRemoteVersion;
 }
 
@@ -64,7 +63,16 @@ bool Http::GetUpdate() {
 		vUpdateFiles.push_back(sFile);
 	}
 
-	cout << "Update - files: " << sRemoteVersion << endl;
-	cout << "Update - files (separated): " << boost::algorithm::join(vUpdateFiles, ", ") << endl;
+	for (string file : vUpdateFiles)
+	{
+		string sResources = Get("resources");
+		string sFile = sAppdataDirectory + "resources.pak";
+
+		ofstream out;
+		out.open(sFile, ofstream::binary);
+		out << sResources;
+		out.close();
+	}
+
 	return true;
 }
