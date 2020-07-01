@@ -142,12 +142,14 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="http.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="http.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils.cpp" />

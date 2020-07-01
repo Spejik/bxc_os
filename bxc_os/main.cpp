@@ -1,11 +1,13 @@
 #define OLC_PGE_APPLICATION
 #define _CRT_SECURE_NO_WARNINGS
+constexpr auto _VERSION = "0.9";
 
 #include <iostream>
 #include <string>
 
 #include "Renderer.h"
 #include "Utils.h"
+#include "http.h"
 
 using namespace std;
 
@@ -22,9 +24,8 @@ struct window {
 int main()
 {
 	// Initializes and connects to Database
-	/*Database* db = new Database();
-	if (!db->Connect())
-		return 0;*/
+	Http* http = new Http();
+	http->GetVersion();
 
 	// Initializes Utils class
 	Utils* utils = new Utils();
