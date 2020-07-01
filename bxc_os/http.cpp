@@ -14,10 +14,10 @@ string Http::Get(string endpoint)
 		curl_easy_setopt(curl, CURLOPT_URL, (sUrl + endpoint).c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
 
-		string readBuffer;
+		string sReadBuffer;
 		CURLcode result;
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&readBuffer);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&sReadBuffer);
 
 		result = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
@@ -25,9 +25,7 @@ string Http::Get(string endpoint)
 		if (result != CURLE_OK)
 			cout << curl_easy_strerror(result) << endl;
 
-		cout << "buffer size: " << readBuffer.size() << endl;
-
-		return readBuffer;
+		return sReadBuffer;
 	}
 }
 
@@ -56,6 +54,7 @@ bool Http::GetUpdate() {
 	stringstream sUpdateFiles(Get("update"));
 	vector<string> vUpdateFiles;
 
+	// Splits string at every ";", so that we get only the file names
 	while (sUpdateFiles.good())
 	{
 		string sFile;
@@ -63,12 +62,14 @@ bool Http::GetUpdate() {
 		vUpdateFiles.push_back(sFile);
 	}
 
+	ofstream out;
+
+	// Individually gets each file and puts it into a file
 	for (string file : vUpdateFiles)
 	{
 		string sResources = Get("update/" + file);
 		string sFile = sAppdataDirectory + file;
 
-		ofstream out;
 		out.open(sFile, ofstream::binary);
 		out << sResources;
 		out.close();

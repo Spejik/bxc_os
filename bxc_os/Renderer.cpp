@@ -34,14 +34,10 @@ void Renderer::PackageResourcePack()
 {
 	std::string path = "assets/";
 	for (const auto & entry : filesystem::directory_iterator(path))
-		cout << entry.path() << endl;
-	RP->AddFile("assets/background.png");
-	RP->AddFile("assets/logo_tr_48.png");
-	RP->AddFile("assets/logo_tr_84.png");
-	RP->AddFile("assets/logo_w_48.png");
-	RP->AddFile("assets/logo_w_84.png");
-	RP->AddFile("assets/logo_b_48.png");
-	RP->AddFile("assets/logo_b_84.png");
+	{
+		RP->AddFile(entry.path().string());
+		cout << entry.path().string() << endl;
+	}
 	RP->SavePack(sResourcePackName, sResourcePackKey);
 }
 
@@ -57,7 +53,7 @@ bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 
 bool Renderer::OnUserCreate()
 {
-	// PackageResourcePack();
+	PackageResourcePack();
 
 	// Loads Resource Pack
 	if (RP->LoadPack(sResourcePackName, sResourcePackKey))
