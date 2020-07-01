@@ -45,8 +45,6 @@ int main()
 	Http* http = new Http();
 	if (http->GetVersion() != _VERSION)
 		Updater();
-	http->GetUpdate();
-	http->GetResources();
 
 	// Initializes Utils class
 	Utils* utils = new Utils();
