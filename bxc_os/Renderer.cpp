@@ -1,16 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "Renderer.h"
-
-#include <iostream>
-#include <ctime>
-#include <chrono>
-#include <time.h>
-
-#include "olcPixelGameEngine.h"
-
-using namespace std;
-using namespace chrono;
 
 
 Renderer::Renderer()

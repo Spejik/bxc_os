@@ -21,6 +21,11 @@ struct window {
 
 int main()
 {
+	// Initializes and connects to Database
+	/*Database* db = new Database();
+	if (!db->Connect())
+		return 0;*/
+
 	// Initializes Utils class
 	Utils* utils = new Utils();
 	utils->LoadConfig();

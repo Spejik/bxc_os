@@ -1,12 +1,17 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <ctime>
 #include <chrono>
+#include <time.h>
 
 #include "olcPixelGameEngine.h"
 
 using namespace std;
 using namespace chrono;
+
+
 
 class Renderer : public olc::PixelGameEngine
 {
@@ -33,6 +38,8 @@ private:
 	olc::Decal* decBackground;
 	olc::Decal* decLogo;
 	olc::ResourcePack* RP = new olc::ResourcePack();
+	olc::vf2d vMouse = { 0, 0 };
+	olc::vf2d vMouseOld = { 0,0 };
 
 
 	// If time has 1 decimal place, prepends it with a 0
