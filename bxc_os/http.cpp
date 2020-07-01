@@ -1,28 +1,39 @@
 #include "http.h"
 
-size_t Http::WriteCallback(char *contents, size_t size, size_t nmemb, void *userp)
-{
-	((std::string*)userp)->append((char*)contents, size * nmemb);
-	return size * nmemb;
-}
 
 string Http::Get(string endpoint)
 {
-	curl_global_init(CURL_GLOBAL_ALL);
+	string url = _url + endpoint;
+	cout << url << endl;
 
 	CURL* curl = curl_easy_init();
-	string readBuffer;
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.42.0");
+		curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+		curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
 
-	curl_easy_setopt(curl, CURLOPT_URL, _url + endpoint);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+		std::string response_string;
+		std::string header_string;
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+		curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
 
-	curl_easy_perform(curl);
+		char* url;
+		long response_code;
+		double elapsed;
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+		curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &elapsed);
+		curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
 
-	cout << readBuffer << endl;
+		curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
 
-	return readBuffer;
+
+		cout << response_string << endl;
+		return response_string;
+	}
 }
 
 
