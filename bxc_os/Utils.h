@@ -5,7 +5,7 @@
 #include <string>
 #include <filesystem>
 #include <fstream>
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 using namespace std;

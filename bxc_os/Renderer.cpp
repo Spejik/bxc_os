@@ -32,17 +32,20 @@ float Renderer::RandFloatRange(float min, float max)
 
 void Renderer::PackageResourcePack()
 {
-	RP->AddFile("./assets/background.png");
-	RP->AddFile("./assets/logo_tr_48.png");
-	RP->AddFile("./assets/logo_tr_84.png");
-	RP->AddFile("./assets/logo_w_48.png");
-	RP->AddFile("./assets/logo_w_84.png");
-	RP->AddFile("./assets/logo_b_48.png");
-	RP->AddFile("./assets/logo_b_84.png");
+	std::string path = "assets/";
+	for (const auto & entry : filesystem::directory_iterator(path))
+		cout << entry.path() << endl;
+	RP->AddFile("assets/background.png");
+	RP->AddFile("assets/logo_tr_48.png");
+	RP->AddFile("assets/logo_tr_84.png");
+	RP->AddFile("assets/logo_w_48.png");
+	RP->AddFile("assets/logo_w_84.png");
+	RP->AddFile("assets/logo_b_48.png");
+	RP->AddFile("assets/logo_b_84.png");
 	RP->SavePack(sResourcePackName, sResourcePackKey);
 }
 
-// Calculates if a 2D point is within the boundaries of a rectangle
+
 bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	bool inX = (point.x > start.x && point.x < end.x);
 	bool inY = (point.y > start.y && point.y < end.y);
@@ -51,11 +54,6 @@ bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 }
 
 
-
-
-// =============
-// Public stuff
-// =============
 
 bool Renderer::OnUserCreate()
 {
@@ -68,11 +66,17 @@ bool Renderer::OnUserCreate()
 		return true;
 
 	// Loads assets
-	sprBackground = new olc::Sprite("./assets/background.png", RP);
-	sprLogo = new olc::Sprite("./assets/logo_w_48.png", RP);
+	sprBackground = new olc::Sprite("assets/background.png", RP);
+	sprLogo = new olc::Sprite("assets/logo_w_48.png", RP);
 	// Converts asset sprites to decals
 	decBackground = new olc::Decal(sprBackground);
 	decLogo = new olc::Decal(sprLogo);
+
+	LayerUi = CreateLayer();
+	EnableLayer(LayerUi, true);
+	LayerBg = CreateLayer();
+	EnableLayer(LayerBg, true);
+	
 
 	return true;
 }
@@ -86,15 +90,20 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	{
 		Clear(olc::Pixel(5, 5, 10));
 		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
-		DrawString(10, 12, "FATAL ERROR: Loading file '" + sResourcePackName + "' failed.", pTextC, 2);
+		DrawString(10, 12, "FATAL ERROR: Loading file 'resources.pak' failed.", pTextC, 2);
 		DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
 		return true;
 	}
 
-	SetPixelMode(olc::Pixel::ALPHA);
+	SetDrawTarget(LayerBg);
 	// === Background and darken
 	DrawDecal({ 0, 0 }, decBackground);
 	FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
+	SetDrawTarget(LayerUi);
+
+
+	SetPixelMode(olc::Pixel::ALPHA);
+	
 	// ===
 	// === Taskbar
 	FillRect({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::Pixel(20, 20, 30, 150));

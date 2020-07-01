@@ -1,6 +1,6 @@
 #define OLC_PGE_APPLICATION
 #define _CRT_SECURE_NO_WARNINGS
-#define _VERSION 0.9
+constexpr auto _VERSION = "0.9";
 #define ASK 1
 #define ALWAYS 2
 #define NEVER 3
@@ -23,12 +23,30 @@ struct window {
 	string name;
 };
 
+void Updater() {
+	string sDownload = "";
+	cout << "There is an update available! Download it? [(y)es/(n)o] : ";
+	cin >> sDownload;
+
+	if (sDownload.rfind("y", 0) == 0) 
+	{
+		Http* http = new Http();
+		http->GetUpdate();
+		http->GetResources();
+		cout << "Installed BXC OS v" + http->GetVersion() << " in " << time << ". Please, close this window and run it again." << endl;
+	}
+	if (sDownload.rfind("n", 0) == 0)
+		exit(0);
+}
+
 
 int main()
 {
-	// Initializes and connects to Database
 	Http* http = new Http();
-	http->GetVersion();
+	if (http->GetVersion() != _VERSION)
+		Updater();
+	http->GetUpdate();
+	http->GetResources();
 
 	// Initializes Utils class
 	Utils* utils = new Utils();

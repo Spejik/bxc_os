@@ -1,8 +1,9 @@
 #include "http.h"
 
-size_t writefunc(void *ptr, size_t size, size_t nmemb, std::string *s)
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-	s->append(static_cast<char *>(ptr), size*nmemb);
+	((std::string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
 }
 
@@ -11,20 +12,22 @@ string Http::Get(string endpoint)
 	CURL* curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, (sUrl + endpoint).c_str());
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
 
-		string response_string;
+		string readBuffer;
 		CURLcode result;
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&readBuffer);
 
 		result = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 
 		if (result != CURLE_OK)
-		cout << curl_easy_strerror(result) << endl;
+			cout << curl_easy_strerror(result) << endl;
 
-		return response_string;
+		cout << "buffer size: " << readBuffer.size() << endl;
+
+		return readBuffer;
 	}
 }
 
@@ -36,4 +39,32 @@ string Http::GetVersion() {
 
 	cout << "Remote version: " << sRemoteVersion << endl;
 	return sRemoteVersion;
+}
+
+bool Http::GetResources() {
+	string sResources = Get("resources");
+	string sFile = sAppdataDirectory + "resources.pak";
+	
+	ofstream out;
+	out.open(sFile, ofstream::binary);
+	out << sResources;
+	out.close();
+
+	return true;
+}
+
+bool Http::GetUpdate() {
+	stringstream sUpdateFiles(Get("update"));
+	vector<string> vUpdateFiles;
+
+	while (sUpdateFiles.good())
+	{
+		string sFile;
+		getline(sUpdateFiles, sFile, ';');
+		vUpdateFiles.push_back(sFile);
+	}
+
+	cout << "Update - files: " << sRemoteVersion << endl;
+	cout << "Update - files (separated): " << boost::algorithm::join(vUpdateFiles, ", ") << endl;
+	return true;
 }
