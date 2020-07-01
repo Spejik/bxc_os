@@ -65,8 +65,8 @@ bool Http::GetUpdate() {
 
 	for (string file : vUpdateFiles)
 	{
-		string sResources = Get("resources");
-		string sFile = sAppdataDirectory + "resources.pak";
+		string sResources = Get("update/" + file);
+		string sFile = sAppdataDirectory + file;
 
 		ofstream out;
 		out.open(sFile, ofstream::binary);
