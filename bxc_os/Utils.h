@@ -1,4 +1,5 @@
 #pragma once
+#define UNDEFINED_INT -99985
 
 #include <iostream>
 #include <string>

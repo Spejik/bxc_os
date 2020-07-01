@@ -1,6 +1,9 @@
 #define OLC_PGE_APPLICATION
 #define _CRT_SECURE_NO_WARNINGS
-constexpr auto _VERSION = "0.9";
+#define _VERSION 0.9
+#define ASK 1
+#define ALWAYS 2
+#define NEVER 3
 
 #include <iostream>
 #include <string>
@@ -39,10 +42,10 @@ int main()
 	bool bUseVsync = false;
 	
 	// Tries to read config's fullscreen value, else uses ask
-	string sCfgFullscreen = utils->GetConfigStringField("fullscreen");
+	int sCfgFullscreen = utils->GetConfigIntField("fullscreen");
 
 	// Asks user for fullscreen settings
-	if (sCfgFullscreen == "ask" || sCfgFullscreen == "")
+	if (sCfgFullscreen == ASK || sCfgFullscreen == UNDEFINED_INT)
 	{
 		string sFullscreen = "";
 
@@ -51,33 +54,25 @@ int main()
 		cin >> sFullscreen;
 
 		if (sFullscreen.rfind("y", 0) == 0)
-		{
 			bUseFullScreen = true;
-			utils->SetConfigStringField("fullscreen", "ask");
-		}
 		// "never" must be before "no", so that it doesn't think user said "no", because of "n" :weSmart:
 		else if (sFullscreen.rfind("ne", 0) == 0) 
 		{
 			bUseFullScreen = false;
-			utils->SetConfigStringField("fullscreen", "never");
+			utils->SetConfigIntField("fullscreen", NEVER);
 		}
 		else if (sFullscreen.rfind("n", 0) == 0) 
-		{
 			bUseFullScreen = false;
-			utils->SetConfigStringField("fullscreen", "ask");
-		} 
 		else if (sFullscreen.rfind("a", 0) == 0) {
 			bUseFullScreen = true;
-			utils->SetConfigStringField("fullscreen", "always");
+			utils->SetConfigIntField("fullscreen", ALWAYS);
 		} 
-		else {
+		else
 			bUseFullScreen = false;
-			utils->SetConfigStringField("fullscreen", "ask");
-		}
 	}
-	else if (sCfgFullscreen == "always")
+	else if (sCfgFullscreen == ALWAYS)
 		bUseFullScreen = true;
-	else if (sCfgFullscreen == "never")
+	else if (sCfgFullscreen == NEVER)
 		bUseFullScreen = false;
 	else
 		bUseFullScreen = false;
