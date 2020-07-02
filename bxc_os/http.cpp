@@ -1,6 +1,7 @@
 #include "http.h"
 
 
+
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 	((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -68,7 +69,8 @@ bool Http::GetUpdate() {
 	for (string file : vUpdateFiles)
 	{
 		string sResources = Get("update/" + file);
-		string sFile = sAppdataDirectory + file;
+		string sPath = filesystem::current_path().string();
+		string sFile = sPath + file;
 
 		out.open(sFile, ofstream::binary);
 		out << sResources;

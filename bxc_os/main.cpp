@@ -1,18 +1,25 @@
-#define OLC_PGE_APPLICATION
-#define _CRT_SECURE_NO_WARNINGS
-constexpr auto _VERSION = "0.9";
-#define ASK 1
-#define ALWAYS 2
-#define NEVER 3
 
-#include <iostream>
-#include <string>
+#ifndef OLC_PGE_APPLICATION
+#define OLC_PGE_APPLICATION
+#endif
+
+#ifndef APP_VERSION
+#define APP_VERSION "0.9"
+#endif
+#ifndef FULLSCREEN_ASK
+#define FULLSCREEN_ASK 1
+#endif
+#ifndef FULLSCREEN_ALWAYS
+#define FULLSCREEN_ALWAYS 2
+#endif
+#ifndef FULLSCREEN_NEVER
+#define FULLSCREEN_NEVER 3
+#endif
+
 
 #include "Renderer.h"
 #include "Utils.h"
 #include "http.h"
-
-using namespace std;
 
 
 struct window {
@@ -43,7 +50,7 @@ void Updater() {
 int main()
 {
 	Http* http = new Http();
-	if (http->GetVersion() != _VERSION)
+	if (http->GetVersion() != APP_VERSION)
 		Updater();
 
 	// Initializes Utils class
@@ -61,7 +68,7 @@ int main()
 	int sCfgFullscreen = utils->GetConfigIntField("fullscreen");
 
 	// Asks user for fullscreen settings
-	if (sCfgFullscreen == ASK || sCfgFullscreen == UNDEFINED_INT)
+	if (sCfgFullscreen == FULLSCREEN_ASK || sCfgFullscreen == JSON_UNDEFINED_INT)
 	{
 		string sFullscreen = "";
 
@@ -75,20 +82,20 @@ int main()
 		else if (sFullscreen.rfind("ne", 0) == 0) 
 		{
 			bUseFullScreen = false;
-			utils->SetConfigIntField("fullscreen", NEVER);
+			utils->SetConfigIntField("fullscreen", FULLSCREEN_NEVER);
 		}
 		else if (sFullscreen.rfind("n", 0) == 0) 
 			bUseFullScreen = false;
 		else if (sFullscreen.rfind("a", 0) == 0) {
 			bUseFullScreen = true;
-			utils->SetConfigIntField("fullscreen", ALWAYS);
+			utils->SetConfigIntField("fullscreen", FULLSCREEN_ALWAYS);
 		} 
 		else
 			bUseFullScreen = false;
 	}
-	else if (sCfgFullscreen == ALWAYS)
+	else if (sCfgFullscreen == FULLSCREEN_ALWAYS)
 		bUseFullScreen = true;
-	else if (sCfgFullscreen == NEVER)
+	else if (sCfgFullscreen == FULLSCREEN_NEVER)
 		bUseFullScreen = false;
 	else
 		bUseFullScreen = false;

@@ -36,7 +36,7 @@ bool Utils::SaveConfig() {
 int Utils::GetConfigIntField(string key)
 {
 	try { return (int) jsonConfig[key]; }
-	catch (exception e) { return UNDEFINED_INT; }
+	catch (exception e) { return JSON_UNDEFINED_INT; }
 }
 bool Utils::GetConfigBoolField(string key)
 {

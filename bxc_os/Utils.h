@@ -1,5 +1,6 @@
 #pragma once
-#define UNDEFINED_INT -99985
+
+#define JSON_UNDEFINED_INT -99985
 
 #include <iostream>
 #include <string>

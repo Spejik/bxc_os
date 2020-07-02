@@ -1,4 +1,5 @@
 #pragma once
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
@@ -27,16 +28,17 @@ private:
 
 	bool bResourcePackLoaded = false;
 
-	int nTaskbarHeight = 48;
-	int nTaskbarX = 0;
-	int nTaskbarY = ScreenHeight() - nTaskbarHeight;
-	int nTaskbarW = ScreenWidth();
-	int nTaskbarH = ScreenHeight();
+	int32_t nTaskbarHeight = 48.0f;
+	int32_t nTaskbarX = 0.0f;
+	int32_t nTaskbarY = ScreenHeight() - nTaskbarHeight;
+	int32_t nTaskbarW = ScreenWidth();
+	int32_t nTaskbarH = ScreenHeight();
 
 
-	string sAppdata = getenv("APPDATA");
+	/*string sAppdata = getenv("APPDATA");
 	string sAppdataDirectory = sAppdata + "\\bxc_os\\";
-	string sResourcePackName = sAppdataDirectory + "resources.pak";
+	string sResourcePackName = sAppdataDirectory + "resources.pak";*/
+	string sResourcePackName = "resources.pak";
 	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
 	olc::Sprite* sprBackground;
 	olc::Sprite* sprLogo;
@@ -52,7 +54,9 @@ private:
 	// If time has 1 decimal place, prepends it with a 0
 	string PrependTime(int n);
 	// Gets current time in milliseconds
-	milliseconds TimeMS();
+	int nTimeMs();
+	// Gets current time in microseconds
+	int nTimeUs();
 	// Generates random float between two numbers
 	float RandFloatRange(float min, float max);
 	// Packages all files in the directory assets into one file, resources.pak

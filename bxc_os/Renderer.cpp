@@ -20,9 +20,14 @@ string Renderer::PrependTime(int n)
 		return sNum;
 }
 
-milliseconds Renderer::TimeMS()
+int Renderer::nTimeMs()
 {
-	return duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+int Renderer::nTimeUs()
+{
+	return duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
 float Renderer::RandFloatRange(float min, float max)
@@ -32,13 +37,32 @@ float Renderer::RandFloatRange(float min, float max)
 
 void Renderer::PackageResourcePack()
 {
-	std::string path = "assets/";
-	for (const auto & entry : filesystem::directory_iterator(path))
+	string sAssetsPath = "assets/";
+
+	int nLoopStart = nTimeUs();
+	for (const auto & entry : filesystem::recursive_directory_iterator(sAssetsPath))
 	{
+		// Ignore plain directories
+		if (entry.is_directory())
+			continue;
+
+
+		// Ignore svg files, as they're the source files for most assets... and don't get encrypted
+		if (entry.path().extension().string() == ".svg")
+			continue;
+
 		RP->AddFile(entry.path().string());
-		cout << entry.path().string() << endl;
 	}
+	int nLoopEnd = nTimeUs(); // Is also "saving start", since it's before the saving function :weSmart:
 	RP->SavePack(sResourcePackName, sResourcePackKey);
+	int nSavingEnd = nTimeUs();
+
+	string sAddingFilesTook = to_string((nLoopEnd - nLoopStart) / 1000);
+	string sSavingFileTook = to_string((nSavingEnd - nLoopEnd) / 1000);
+
+	cout << "PackageResourcePack - debug: " << endl
+		 << "- Adding files took " << sAddingFilesTook << "ms" << endl
+		 << "- Saving file took "  << sSavingFileTook  << "ms" << endl;
 }
 
 
@@ -63,7 +87,7 @@ bool Renderer::OnUserCreate()
 
 	// Loads assets
 	sprBackground = new olc::Sprite("assets/background.png", RP);
-	sprLogo = new olc::Sprite("assets/logo_w_48.png", RP);
+	sprLogo = new olc::Sprite("assets/logo_white.png", RP);
 	// Converts asset sprites to decals
 	decBackground = new olc::Decal(sprBackground);
 	decLogo = new olc::Decal(sprLogo);
@@ -86,8 +110,8 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	{
 		Clear(olc::Pixel(5, 5, 10));
 		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
-		DrawString(10, 12, "FATAL ERROR: Loading file 'resources.pak' failed.", pTextC, 2);
-		DrawString(10, 36, "The file might be corrupted, or it doesn't exist.", pTextC, 2);
+		DrawStringDecal({ 10, 12 }, "FATAL ERROR: Loading file 'resources.pak' failed.", pTextC, { 2.0f, 2.0f });
+		DrawStringDecal({ 10, 36 }, "The file might be corrupted, or it doesn't exist.", pTextC, { 2.0f, 2.0f });
 		return true;
 	}
 
@@ -134,8 +158,8 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
 
 	// Draws Time & Date
-	DrawString({ nTaskbarW - 92, nTaskbarH - 36 }, sTime, olc::WHITE, 1.5);
-	DrawString({ nTaskbarW - 100, nTaskbarH - 24 }, sDate, olc::WHITE, 1.5);
+	DrawStringDecal({ nTaskbarW - 92.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.5f, 1.5f });
+	DrawStringDecal({ nTaskbarW - 100.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.5f, 1.5f });
 
 	SetPixelMode(olc::Pixel::NORMAL);
 
