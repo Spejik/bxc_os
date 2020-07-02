@@ -22,7 +22,7 @@ string Renderer::PrependTime(int n)
 
 int Renderer::nTimeMs()
 {
-	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+	return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
 }
 
 int Renderer::nTimeUs()
@@ -39,13 +39,11 @@ void Renderer::PackageResourcePack()
 {
 	string sAssetsPath = "assets/";
 
-	int nLoopStart = nTimeUs();
 	for (const auto & entry : filesystem::recursive_directory_iterator(sAssetsPath))
 	{
 		// Ignore plain directories
 		if (entry.is_directory())
 			continue;
-
 
 		// Ignore svg files, as they're the source files for most assets... and don't get encrypted
 		if (entry.path().extension().string() == ".svg")
@@ -53,16 +51,7 @@ void Renderer::PackageResourcePack()
 
 		RP->AddFile(entry.path().string());
 	}
-	int nLoopEnd = nTimeUs(); // Is also "saving start", since it's before the saving function :weSmart:
 	RP->SavePack(sResourcePackName, sResourcePackKey);
-	int nSavingEnd = nTimeUs();
-
-	string sAddingFilesTook = to_string((nLoopEnd - nLoopStart) / 1000);
-	string sSavingFileTook = to_string((nSavingEnd - nLoopEnd) / 1000);
-
-	cout << "PackageResourcePack - debug: " << endl
-		 << "- Adding files took " << sAddingFilesTook << "ms" << endl
-		 << "- Saving file took "  << sSavingFileTook  << "ms" << endl;
 }
 
 
@@ -72,7 +61,6 @@ bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	
 	return (inX && inY);
 }
-
 
 
 bool Renderer::OnUserCreate()
@@ -134,20 +122,21 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	float fMouseX = GetMouseX();
 	float fMouseY = GetMouseY();
 
-	// Gets system Time
-	time_t Time = time(0);
-	tm* TimeNow = localtime(&Time);
-
 	if (GetMouse(0).bPressed)
 		cout << (IsPointInRect({ fMouseX, fMouseY }, { 0,0 }, { 200, 200 }) ? "true" : "false") << endl;
 
-	// Create time
-	int nYear = TimeNow->tm_year + 1900;
-	int nMonth = TimeNow->tm_mon + 1;
-	int nDay = TimeNow->tm_mday;
-	int nHour = TimeNow->tm_hour;
-	int nMin = TimeNow->tm_min;
-	int nSec = TimeNow->tm_sec;
+	
+	// Get current system time
+	boost::posix_time::ptime timeLocal = boost::posix_time::second_clock::local_time();
+
+	// Get specific time from the time object
+	int nYear = timeLocal.date().year();
+	int nMonth = timeLocal.date().month();
+	int nDay = timeLocal.date().day();
+	int nHour = timeLocal.time_of_day().hours();
+	int nMin = timeLocal.time_of_day().minutes();
+	int nSec = timeLocal.time_of_day().seconds();
+	// Construct readable time strings
 	string sTime = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
 	string sDate = PrependTime(nDay) + "." + PrependTime(nMonth) + "." + PrependTime(nYear);
 
@@ -158,8 +147,8 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
 
 	// Draws Time & Date
-	DrawStringDecal({ nTaskbarW - 92.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.5f, 1.5f });
-	DrawStringDecal({ nTaskbarW - 100.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.5f, 1.5f });
+	DrawStringDecal({ nTaskbarW - 92.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ nTaskbarW - 100.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
 
 	SetPixelMode(olc::Pixel::NORMAL);
 

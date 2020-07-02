@@ -1,6 +1,5 @@
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <string>
@@ -8,11 +7,12 @@
 #include <ctime>
 #include <chrono>
 #include <time.h>
+#include <boost/date_time.hpp>
 
 #include "olcPixelGameEngine.h"
 
 using namespace std;
-using namespace chrono;
+using namespace std::chrono;
 
 
 
