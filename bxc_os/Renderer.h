@@ -27,12 +27,14 @@ private:
 	// =============
 
 	bool bResourcePackLoaded = false;
+	bool bDrawDebugBoundaries = true;
+	bool bTimeBoxOpen = false;
 
-	int32_t nTaskbarHeight = 48.0f;
-	int32_t nTaskbarX = 0.0f;
-	int32_t nTaskbarY = ScreenHeight() - nTaskbarHeight;
-	int32_t nTaskbarW = ScreenWidth();
-	int32_t nTaskbarH = ScreenHeight();
+	int32_t nTaskbarHeight = 48;
+	int32_t nTaskbarX = 0;
+	int32_t nTaskbarY = 0;
+	int32_t nTaskbarW = 0;
+	int32_t nTaskbarH = 0;
 
 
 	/*string sAppdata = getenv("APPDATA");

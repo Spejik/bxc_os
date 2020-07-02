@@ -73,6 +73,12 @@ bool Renderer::OnUserCreate()
 	else
 		return true;
 
+	// Set correct values to taskbar dimensions
+	nTaskbarX = 0.0f;
+	nTaskbarY = ScreenHeight() - nTaskbarHeight;
+	nTaskbarW = ScreenWidth();
+	nTaskbarH = ScreenHeight();
+
 	// Loads assets
 	sprBackground = new olc::Sprite("assets/background.png", RP);
 	sprLogo = new olc::Sprite("assets/logo_white.png", RP);
@@ -80,6 +86,7 @@ bool Renderer::OnUserCreate()
 	decBackground = new olc::Decal(sprBackground);
 	decLogo = new olc::Decal(sprLogo);
 
+	// Create and enable layers
 	LayerUi = CreateLayer();
 	EnableLayer(LayerUi, true);
 	LayerBg = CreateLayer();
@@ -91,39 +98,37 @@ bool Renderer::OnUserCreate()
 
 bool Renderer::OnUserUpdate(float fElapsedTime)
 {
-	// Clears the screen, so we don't have any pixels overlapping
-	Clear(olc::BLANK);
-
+	// If resources.pak failed loading, show error message
 	if (!bResourcePackLoaded)
 	{
 		Clear(olc::Pixel(5, 5, 10));
 		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
-		DrawStringDecal({ 10, 12 }, "FATAL ERROR: Loading file 'resources.pak' failed.", pTextC, { 2.0f, 2.0f });
-		DrawStringDecal({ 10, 36 }, "The file might be corrupted, or it doesn't exist.", pTextC, { 2.0f, 2.0f });
+		DrawStringDecal({ 10, 12 }, "FATAL ERROR: Loading file 'resources.pak' failed.", pTextC, { 2.0f, 2.2f });
+		DrawStringDecal({ 10, 36 }, "The file might be corrupted, or it doesn't exist.", pTextC, { 2.0f, 2.2f });
 		return true;
 	}
+
+	// Clears the screen, so we don't have any pixels overlapping
+	Clear(olc::BLANK);
 
 	SetDrawTarget(LayerBg);
 	// === Background and darken
 	DrawDecal({ 0, 0 }, decBackground);
-	FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::Pixel(0, 0, 0, 100));
+	FillRectDecal({ 0, 0 }, { float(ScreenWidth()), float(ScreenHeight()) }, olc::Pixel(0, 0, 0, 100));
 	SetDrawTarget(LayerUi);
 
 
-	SetPixelMode(olc::Pixel::ALPHA);
 	
 	// ===
 	// === Taskbar
-	FillRect({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::Pixel(20, 20, 30, 150));
+	FillRectDecal({ float(nTaskbarX), float(nTaskbarY) }, { float(nTaskbarW), float(nTaskbarH) }, olc::Pixel(20, 20, 30, 150));
 	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
 	// ===
-	SetPixelMode(olc::Pixel::NORMAL);
 
 	float fMouseX = GetMouseX();
 	float fMouseY = GetMouseY();
 
-	if (GetMouse(0).bPressed)
-		cout << (IsPointInRect({ fMouseX, fMouseY }, { 0,0 }, { 200, 200 }) ? "true" : "false") << endl;
+	
 
 	
 	// Get current system time
@@ -137,20 +142,37 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	int nMin = timeLocal.time_of_day().minutes();
 	int nSec = timeLocal.time_of_day().seconds();
 	// Construct readable time strings
-	string sTime = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
+	string sTime = PrependTime(nHour) + ":" + PrependTime(nMin);
+	string sTimeLong = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
 	string sDate = PrependTime(nDay) + "." + PrependTime(nMonth) + "." + PrependTime(nYear);
 
-	// Creates the taskbar
-	SetPixelMode(olc::Pixel::ALPHA);
 
-	// Inserts logo
+	if (bDrawDebugBoundaries)
+	{
+		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH });
+	}
+
+	if (GetMouse(0).bPressed)
+	{
+		if (IsPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+		{
+			bTimeBoxOpen = true;
+		}
+	}
+
+	if (bTimeBoxOpen)
+	{
+		FillRectDecal({ nTaskbarW - 150.0f, nTaskbarY - 300.0f }, { nTaskbarW + 0.0f, nTaskbarY + 0.0f }, olc::Pixel(10, 10, 20, 100));
+		GradientFillRectDecal({ 0.0f, 0.0f }, { 100.2f, 100.5f }, olc::Pixel(255, 0, 0), olc::Pixel(0, 255, 0), olc::Pixel(0, 0, 255), olc::Pixel(255, 255, 0));
+	}
+
+	// Inserts logo into taskbar
 	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
 
 	// Draws Time & Date
-	DrawStringDecal({ nTaskbarW - 92.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
-	DrawStringDecal({ nTaskbarW - 100.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ nTaskbarW - 85.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ nTaskbarW - 110.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
 
-	SetPixelMode(olc::Pixel::NORMAL);
 
 
 	return true;
