@@ -138,6 +138,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	int nYear = timeLocal.date().year();
 	int nMonth = timeLocal.date().month();
 	int nDay = timeLocal.date().day();
+	int nDayWeek = timeLocal.date().day_of_week();
 	int nHour = timeLocal.time_of_day().hours();
 	int nMin = timeLocal.time_of_day().minutes();
 	int nSec = timeLocal.time_of_day().seconds();
@@ -145,25 +146,43 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	string sTime = PrependTime(nHour) + ":" + PrependTime(nMin);
 	string sTimeLong = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
 	string sDate = PrependTime(nDay) + "." + PrependTime(nMonth) + "." + PrependTime(nYear);
+	string sDateVerbal = sDaysOrdinals[nDay] + " " + sMonths[nMonth] + " " + to_string(nYear);
+	string sDay = sDays[nDayWeek];
 
+
+	if (bTimeBoxOpen)
+	{
+		float fTopX = nTaskbarW - fTimebarW;
+		float fTopY = nTaskbarY - fTimebarH;
+		FillRectDecal({ fTopX, fTopY }, { fTimebarW, fTimebarH }, olc::Pixel(10, 10, 20, 200));
+		DrawStringDecal({ fTopX + 55.0f, fTopY + 25.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });
+		DrawStringDecal({ fTopX + 90.0f, fTopY + 55.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });
+		DrawStringDecal({ fTopX + 70.0f, fTopY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f });
+
+		if (bDrawDebugBoundaries)
+			DrawRect({ (int) fTopX + 1, (int) fTopY + 1 }, { (int) fTimebarW - 1, (int) fTimebarH -1 }, olc::RED);
+	
+		if (GetMouse(0).bPressed)
+			// If user clicks somewhere else than on the timebox, close it
+			if (IsPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
+			{
+				bTimeBoxOpen = false;
+				cout << "no" << endl;
+			}
+			else cout << "haha yes" << endl;
+			
+	}
 
 	if (bDrawDebugBoundaries)
 	{
-		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH });
+		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::GREEN);
 	}
 
 	if (GetMouse(0).bPressed)
 	{
+		// timebox
 		if (IsPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
-		{
-			bTimeBoxOpen = true;
-		}
-	}
-
-	if (bTimeBoxOpen)
-	{
-		FillRectDecal({ nTaskbarW - 150.0f, nTaskbarY - 300.0f }, { nTaskbarW + 0.0f, nTaskbarY + 0.0f }, olc::Pixel(10, 10, 20, 100));
-		GradientFillRectDecal({ 0.0f, 0.0f }, { 100.2f, 100.5f }, olc::Pixel(255, 0, 0), olc::Pixel(0, 255, 0), olc::Pixel(0, 0, 255), olc::Pixel(255, 255, 0));
+			bTimeBoxOpen = !bTimeBoxOpen;
 	}
 
 	// Inserts logo into taskbar
