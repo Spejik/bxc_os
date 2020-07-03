@@ -65,7 +65,7 @@ bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 
 bool Renderer::OnUserCreate()
 {
-	PackageResourcePack();
+	//PackageResourcePack();
 
 	// Loads Resource Pack
 	if (RP->LoadPack(sResourcePackName, sResourcePackKey))
@@ -116,7 +116,6 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	DrawDecal({ 0, 0 }, decBackground);
 	FillRectDecal({ 0, 0 }, { float(ScreenWidth()), float(ScreenHeight()) }, olc::Pixel(0, 0, 0, 100));
 	SetDrawTarget(LayerUi);
-
 
 	
 	// ===

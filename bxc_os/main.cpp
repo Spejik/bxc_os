@@ -4,7 +4,7 @@
 #endif
 
 #ifndef APP_VERSION
-#define APP_VERSION "0.9"
+#define APP_VERSION "0.11"
 #endif
 #ifndef FULLSCREEN_ASK
 #define FULLSCREEN_ASK 1
@@ -39,7 +39,6 @@ void Updater() {
 	{
 		Http* http = new Http();
 		http->GetUpdate();
-		http->GetResources();
 		cout << "Installed BXC OS v" + http->GetVersion() << " in " << time << ". Please, close this window and run it again." << endl;
 	}
 	if (sDownload.rfind("n", 0) == 0)
@@ -98,7 +97,10 @@ int main()
 	else if (sCfgFullscreen == FULLSCREEN_NEVER)
 		bUseFullScreen = false;
 	else
-		bUseFullScreen = false;
+	{
+		cout << "Invalid config.json value: fullscreen > " << sCfgFullscreen << endl;
+		cin.get(); system("pause"); return 0;
+	}
 
 
 	// Gets screen dimensions, so the image isn't stretched or anything like that

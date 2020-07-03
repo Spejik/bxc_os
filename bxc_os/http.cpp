@@ -39,17 +39,6 @@ string Http::GetVersion() {
 	return sRemoteVersion;
 }
 
-bool Http::GetResources() {
-	string sResources = Get("resources");
-	string sFile = sAppdataDirectory + "resources.pak";
-	
-	ofstream out;
-	out.open(sFile, ofstream::binary);
-	out << sResources;
-	out.close();
-
-	return true;
-}
 
 bool Http::GetUpdate() {
 	stringstream sUpdateFiles(Get("update"));
@@ -69,8 +58,7 @@ bool Http::GetUpdate() {
 	for (string file : vUpdateFiles)
 	{
 		string sResources = Get("update/" + file);
-		string sPath = filesystem::current_path().string();
-		string sFile = sPath + file;
+		string sFile = sDirectory + file;
 
 		out.open(sFile, ofstream::binary);
 		out << sResources;
