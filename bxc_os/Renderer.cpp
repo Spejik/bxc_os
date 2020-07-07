@@ -164,12 +164,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		if (GetMouse(0).bPressed)
 			// If user clicks somewhere else than on the timebox, close it
 			if (IsPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
-			{
-				bTimeBoxOpen = false;
-				cout << "no" << endl;
-			}
-			else cout << "haha yes" << endl;
-			
+				bTimeBoxOpen = false;			
 	}
 
 	if (bDrawDebugBoundaries)

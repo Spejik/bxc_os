@@ -4,7 +4,7 @@
 #endif
 
 #ifndef APP_VERSION
-#define APP_VERSION "0.11"
+#define APP_VERSION "0.18"
 #endif
 #ifndef FULLSCREEN_ASK
 #define FULLSCREEN_ASK 1
@@ -30,16 +30,16 @@ struct window {
 	string name;
 };
 
-void Updater() {
+void Updater(Http* http) {
 	string sDownload = "";
-	cout << "There is an update available! Download it? [(y)es/(n)o] : ";
+	cout << "There is an update (" << http->GetVersion() << ") available! Download it? [(y)es/(n)o] : ";
 	cin >> sDownload;
 
 	if (sDownload.rfind("y", 0) == 0) 
 	{
-		Http* http = new Http();
-		http->GetUpdate();
-		cout << "Installed BXC OS v" + http->GetVersion() << " in " << time << ". Please, close this window and run it again." << endl;
+		float nUpdated = http->GetUpdate();
+		cout << "Installed BXC OS v" + http->GetVersion() << " in " << nUpdated / 1000 << "s. Please, close this window and run it again." << endl << endl;
+		cin.get(); return;
 	}
 	if (sDownload.rfind("n", 0) == 0)
 		exit(0);
@@ -50,7 +50,7 @@ int main()
 {
 	Http* http = new Http();
 	if (http->GetVersion() != APP_VERSION)
-		Updater();
+		Updater(http);
 
 	// Initializes Utils class
 	Utils* utils = new Utils();
@@ -99,7 +99,7 @@ int main()
 	else
 	{
 		cout << "Invalid config.json value: fullscreen > " << sCfgFullscreen << endl;
-		cin.get(); system("pause"); return 0;
+		cin.get(); return 0;
 	}
 
 
@@ -122,7 +122,7 @@ int main()
 			<< "    |   Constructing BXC OS failed :(   |    " << endl
 			<< "    o===================================o    " << endl;
 
-		cin.get(); system("pause"); return 0;
+		cin.get(); return 0;
 	}
 
 	return 0;

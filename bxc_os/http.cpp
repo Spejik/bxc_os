@@ -40,9 +40,11 @@ string Http::GetVersion() {
 }
 
 
-bool Http::GetUpdate() {
+float Http::GetUpdate() {
+	float nUpdateStart = nTimeMs();
 	stringstream sUpdateFiles(Get("update"));
 	vector<string> vUpdateFiles;
+	cout << "Available update files: " << sUpdateFiles.str() << endl;
 
 	// Splits string at every ";", so that we get only the file names
 	while (sUpdateFiles.good())
@@ -52,6 +54,12 @@ bool Http::GetUpdate() {
 		vUpdateFiles.push_back(sFile);
 	}
 
+	// If there is bxc_os.old file, delete it, so we can rename the current file to that name
+	filesystem::remove(sDirectory + "bxc_os.old.exe");
+
+	// Renames the executable file
+	filesystem::rename(sDirectory + "bxc_os.exe", sDirectory + "bxc_os.old.exe");
+
 	ofstream out;
 
 	// Individually gets each file and puts it into a file
@@ -60,10 +68,13 @@ bool Http::GetUpdate() {
 		string sResources = Get("update/" + file);
 		string sFile = sDirectory + file;
 
+		cout << "Downloaded " << file << endl;
+
 		out.open(sFile, ofstream::binary);
 		out << sResources;
 		out.close();
 	}
 
-	return true;
+	float nUpdateEnd = nTimeMs();
+	return nUpdateEnd - nUpdateStart;
 }
