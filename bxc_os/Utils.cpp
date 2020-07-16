@@ -7,14 +7,13 @@ int Utils::gcd(int a, int b)
 };
 
 bool Utils::LoadConfig() {
-	cout << sAppdata << endl;
 	// Creates bxc_os/config.json in appdata
 	CreateAppDataDirectory();
 	CreateConfigFile();
 
-	string sConfig;
+	std::string sConfig;
 	// Reads the config file
-	ifstream File(sConfigFileLocation);
+	std::ifstream File(sConfigFileLocation);
 	getline(File, sConfig);
 	File.close();
 
@@ -26,7 +25,7 @@ bool Utils::LoadConfig() {
 
 // Serializes JSON config and writes it to the config file
 bool Utils::SaveConfig() {
-	ofstream File(sConfigFileLocation);
+	std::ofstream File(sConfigFileLocation);
 	File << jsonConfig.dump();
 	File.close();
 
@@ -34,37 +33,36 @@ bool Utils::SaveConfig() {
 }
 
 
-int Utils::GetConfigIntField(string key)
+int Utils::GetConfigIntField(std::string key)
 {
 	try { return (int) jsonConfig[key]; }
-	catch (exception e) { return JSON_UNDEFINED_INT; }
+	catch (std::exception e) { return JSON_UNDEFINED_INT; }
 }
-bool Utils::GetConfigBoolField(string key)
+bool Utils::GetConfigBoolField(std::string key)
 {
 	try { return (bool) jsonConfig[key]; }
-	catch (exception e) { return false; }
+	catch (std::exception e) { return false; }
 }
-string Utils::GetConfigStringField(string key)
+std::string Utils::GetConfigStringField(std::string key)
 {
-	try { return (string) jsonConfig[key]; } 
-	catch (exception e) { return ""; }
+	try { return (std::string) jsonConfig[key]; }
+	catch (std::exception e) { return ""; }
 }
 
 
 
-void Utils::SetConfigIntField(string key, int value)
+void Utils::SetConfigIntField(std::string key, int value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigBoolField(string key, bool value)
+void Utils::SetConfigBoolField(std::string key, bool value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigStringField(string key, string value)
+void Utils::SetConfigStringField(std::string key, std::string value)
 {
-	cout << key << ": " << value << endl;
 	jsonConfig[key] = value;
 	SaveConfig();
 }
@@ -74,10 +72,10 @@ void Utils::SetConfigStringField(string key, string value)
 bool Utils::CreateAppDataDirectory()
 {
 	try { 
-		return filesystem::create_directory(sConfigFilePath); 
+		return boost::filesystem::create_directory(sConfigFilePath); 
 	} 
-	catch (exception e) {
-		cout << e.what() << endl;
+	catch (std::exception e) {
+		std::cout << e.what() <<  std::endl;
 		return false;
 	}
 }
@@ -92,15 +90,15 @@ bool Utils::CreateConfigFile() {
 			return true;
 		else 
 		{
-			ofstream File(sConfigFileLocation);
+			std::ofstream File(sConfigFileLocation);
 			File << "{}";
 			File.close();
 			return true;
 		}
 		
 	}
-	catch (exception e) {
-		cout << e.what() << endl;
+	catch (std::exception e) {
+		std::cout << e.what() <<  std::endl;
 		return false;
 	}
 }

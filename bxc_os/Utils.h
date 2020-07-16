@@ -6,20 +6,24 @@
 #include <string>
 #include <filesystem>
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include <boost/filesystem.hpp>
 
-using json = nlohmann::json;
-using namespace std;
+#ifndef _BXC_UTILS
+#define _BXC_UTILS
 
-
+#ifndef _USING_JSON
+	#define _USING_JSON
+	#include <nlohmann/json.hpp>
+	using json = nlohmann::json;
+#endif
 
 class Utils
 {
 private:
-	string sAppdata = getenv("APPDATA");
-	string sConfigFilePath = sAppdata + "\\bxc_os\\";
-	string sConfigFileName = "config.json";
-	string sConfigFileLocation = sConfigFilePath + sConfigFileName;
+	std::string sAppdata = getenv("APPDATA");
+	std::string sConfigFilePath = sAppdata + "\\bxc_os\\";
+	std::string sConfigFileName = "config.json";
+	std::string sConfigFileLocation = sConfigFilePath + sConfigFileName;
 	json jsonConfig;
 
 
@@ -29,16 +33,17 @@ public:
 	bool SaveConfig();
 
 	
-	int    GetConfigIntField   (string key);
-	bool   GetConfigBoolField  (string key);
-	string GetConfigStringField(string key);
+	int    GetConfigIntField        (std::string key);
+	bool   GetConfigBoolField       (std::string key);
+	std::string GetConfigStringField(std::string key);
 
 	
-	void SetConfigIntField     (string key, int value);
-	void SetConfigBoolField    (string key, bool value);
-	void SetConfigStringField  (string key, string value);
+	void SetConfigIntField     (std::string key, int value);
+	void SetConfigBoolField    (std::string key, bool value);
+	void SetConfigStringField  (std::string key, std::string value);
 
 	bool CreateAppDataDirectory();
 	bool CreateConfigFile();
 };
 
+#endif // _BXC_UTILS

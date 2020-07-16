@@ -8,14 +8,14 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 	return size * nmemb;
 }
 
-string Http::Get(string endpoint)
+std::string Http::Get(std::string endpoint)
 {
 	CURL* curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, (sUrl + endpoint).c_str());
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
 
-		string sReadBuffer;
+		std::string sReadBuffer;
 		CURLcode result;
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&sReadBuffer);
@@ -24,7 +24,7 @@ string Http::Get(string endpoint)
 		curl_easy_cleanup(curl);
 
 		if (result != CURLE_OK)
-			cout << curl_easy_strerror(result) << endl;
+			std::cout << curl_easy_strerror(result) <<  std::endl;
 
 		return sReadBuffer;
 	}
@@ -32,7 +32,7 @@ string Http::Get(string endpoint)
 
 
 
-string Http::GetVersion() {
+std::string Http::GetVersion() {
 	if (sRemoteVersion == "")
 		sRemoteVersion = Get("version");
 
@@ -41,40 +41,40 @@ string Http::GetVersion() {
 
 
 float Http::GetUpdate() {
-	float nUpdateStart = time->millisecond();
-	stringstream sUpdateFiles(Get("update"));
-	vector<string> vUpdateFiles;
-	cout << "Available update files: " << sUpdateFiles.str() << endl;
+	int nUpdateStart = time->millisecond();
+	std::stringstream sUpdateFiles(Get("update"));
+	std::vector<std::string> vUpdateFiles;
+	std::cout << "Available update files: " << sUpdateFiles.str() <<  std::endl;
 
 	// Splits string at every ";", so that we get only the file names
 	while (sUpdateFiles.good())
 	{
-		string sFile;
+		std::string sFile;
 		getline(sUpdateFiles, sFile, ';');
 		vUpdateFiles.push_back(sFile);
 	}
 
 	// If there is .old file, delete it, so we can rename the current file to that name
-	filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
+	boost::filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
 
 	// Renames the executable file
-	filesystem::rename(fs->sCurrentDirectory + "bxc_os.exe", fs->sCurrentDirectory + "__bxc_os.old.exe");
+	boost::filesystem::rename(fs->sCurrentDirectory + "bxc_os.exe", fs->sCurrentDirectory + "__bxc_os.old.exe");
 
-	ofstream out;
+	std::ofstream out;
 
 	// Individually gets each file and puts it into a file
-	for (string file : vUpdateFiles)
+	for (auto & file : vUpdateFiles)
 	{
-		string sResources = Get("update/" + file);
-		string sFile = fs->sCurrentDirectory + file;
+		std::string sResources = Get("update/" + file);
+		std::string sFile = fs->sCurrentDirectory + file;
 
-		cout << "Downloaded >" << file << endl;
+		std::cout << "Downloaded >" << file <<  std::endl;
 
-		out.open(sFile, ofstream::binary);
+		out.open(sFile, std::ofstream::binary);
 		out << sResources;
 		out.close();
 	}
 
-	float nUpdateEnd = time->millisecond();
+	int nUpdateEnd = time->millisecond();
 	return nUpdateEnd - nUpdateStart;
 }

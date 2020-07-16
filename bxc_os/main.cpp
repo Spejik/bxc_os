@@ -6,19 +6,19 @@ struct window {
 	int py;
 	int sx;
 	int sy;
-	string name;
+	std::string name;
 };
 
 int Updater(Http* http) {
-	string sDownload = "";
-	cout << "There is an update (" << http->GetVersion() << ") available! Download it? [(y)es/(n)o] : ";
-	cin >> sDownload;
+	std::string sDownload = "";
+	std::cout << "There is an update (" << http->GetVersion() << ") available! Download it? [(y)es/(n)o] : ";
+	std::cin >> sDownload;
 
 	if (sDownload.rfind("y", 0) == 0) 
 	{
 		float nUpdated = http->GetUpdate();
-		cout << "Installed BXC OS v" << http->GetVersion() << " in " << nUpdated / 1000 << "s. Please, close this window and run it again." << endl << endl;
-		cin.get(); return 0;
+		std::cout << "Installed BXC OS v" << http->GetVersion() << " in " << nUpdated / 1000 << "s. Please, close this window and run it again." <<  std::endl <<  std::endl;
+		std::cin.get(); return 0;
 	}
 	if (sDownload.rfind("n", 0) == 0)
 		return 0;
@@ -49,9 +49,9 @@ int main()
 	if (sCfgFullscreen == FULLSCREEN_ASK || sCfgFullscreen == JSON_UNDEFINED_INT)
 	{
 		// Fullscreen prompt
-		cout << "Run in fullscreen mode? [(y)es/(n)o/(a)lways/(ne)ver] : ";
-		string sFullscreen = "";
-		cin >> sFullscreen;
+		std::cout << "Run in fullscreen mode? [(y)es/(n)o/(a)lways/(ne)ver] : ";
+		std::string sFullscreen = "";
+		std::cin >> sFullscreen;
 
 
 
@@ -84,8 +84,8 @@ int main()
 		bUseFullScreen = false;
 	else
 	{
-		cout << "Invalid config.json value: fullscreen > " << sCfgFullscreen << endl;
-		cin.get(); return 0;
+		std::cout << "Invalid config.json value: fullscreen > " << sCfgFullscreen <<  std::endl;
+		std::cin.get(); return 0;
 	}
 
 
@@ -103,12 +103,12 @@ int main()
 		os.Start();
 	else
 	{
-		cout << endl
-			<< "    o===================================o    " << endl
-			<< "    |   Constructing BXC OS failed :(   |    " << endl
-			<< "    o===================================o    " << endl;
+		std::cout <<  std::endl
+			<< "    o===================================o    " <<  std::endl
+			<< "    |   Constructing BXC OS failed :(   |    " <<  std::endl
+			<< "    o===================================o    " <<  std::endl;
 
-		cin.get(); return 0;
+		std::cin.get(); return 0;
 	}
 
 	return 0;

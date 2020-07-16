@@ -15,12 +15,12 @@ float Renderer::RandFloatRange(float min, float max)
 
 void Renderer::PackageResourcePack()
 {
-	string sAssetsPath = "assets/";
+	std::string sAssetsPath = "assets/";
 
-	for (const auto & entry : filesystem::recursive_directory_iterator(sAssetsPath))
+	for (auto & entry : boost::filesystem::recursive_directory_iterator(sAssetsPath))
 	{
 		// Ignore plain directories
-		if (entry.is_directory())
+		if (boost::filesystem::is_directory(entry))
 			continue;
 
 		// Ignore svg files, as they're the source files for most assets... and don't get encrypted
@@ -33,14 +33,14 @@ void Renderer::PackageResourcePack()
 }
 
 
-bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
+bool Renderer::o_isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	bool inX = (point.x > start.x && point.x < end.x);
 	bool inY = (point.y > start.y && point.y < end.y);
 	
 	return (inX && inY);
 }
 
-void Renderer::SetAppName(string name) {
+void Renderer::SetAppName(std::string name) {
 	sAppName = "BXC OS " + name;
 }
 
@@ -57,7 +57,7 @@ bool Renderer::OnUserCreate()
 		return true;
 
 	// Set correct values to taskbar dimensions
-	nTaskbarX = 0.0f;
+	nTaskbarX = 0;
 	nTaskbarY = ScreenHeight() - nTaskbarHeight;
 	nTaskbarW = ScreenWidth();
 	nTaskbarH = ScreenHeight();
@@ -108,8 +108,8 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
 	// ===
 
-	float fMouseX = GetMouseX();
-	float fMouseY = GetMouseY();
+	float fMouseX = (float)GetMouseX();
+	float fMouseY = (float)GetMouseY();
 
 	
 
@@ -117,15 +117,15 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Get current system time
 	// Construct readable time strings
 	// HH::MM
-	string sTime =        time->prepend(time->hour()) + ":" + time->prepend(time->minute());
+	std::string sTime =        time->prepend(time->hour()) + ":" + time->prepend(time->minute());
 	// HH:MM:SS
-	string sTimeLong =	  time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
+	std::string sTimeLong =	  time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
 	// DD.MM.YYYY
-	string sDate =        time->prepend(time->day()) + "."  + time->prepend(time->month())  + "." + to_string(time->year());
+	std::string sDate =        time->prepend(time->day()) + "."  + time->prepend(time->month())  + "." + std::to_string(time->year());
 	// DD(st/nd/rd/th) MM YYYY
-	string sDateVerbal =  sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + to_string(time->year());
+	std::string sDateVerbal =  sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + std::to_string(time->year());
 	// monday, tuesday, ...
-	string sDay = sDays[time->day_of_week()];
+	std::string sDay = sDays[time->day_of_week()];
 
 
 	if (bTimeBoxOpen)
@@ -142,7 +142,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	
 		if (GetMouse(0).bPressed)
 			// If user clicks somewhere else than on the timebox, close it
-			if (IsPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
+			if (o_isPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
 				bTimeBoxOpen = false;			
 	}
 
@@ -154,7 +154,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	if (GetMouse(0).bPressed)
 	{
 		// timebox
-		if (IsPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+		if (o_isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
 			bTimeBoxOpen = !bTimeBoxOpen;
 	}
 

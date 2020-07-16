@@ -9,24 +9,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <curl/curl.h>
+#include <boost/filesystem.hpp>
 
 #include "time.h"
 #include "fs.h"
 
-using namespace std;
+#ifndef _BXC_HTTP
+#define _BXC_HTTP
 
 class Http
 {
 public:
-	string GetVersion();
+	std::string GetVersion();
 	// Look up all files that need to be downloaded and downloads them :pepege:
 	float GetUpdate();
 
 private:
-	string Get(string endpoint);
-	string sUrl = "http://178.63.148.0:44214/"; 
-	string sRemoteVersion = "";
-	bxc_time* time = new bxc_time();
-	bxc_fs* fs = new bxc_fs;
+	std::string Get(std::string endpoint);
+	std::string sUrl = "http://178.63.148.0:44214/";
+	std::string sRemoteVersion = "";
+	bxc::time* time = new bxc::time();
+	bxc::fs* fs = new bxc::fs();
 };
 
+#endif // _BXC_HTTP
