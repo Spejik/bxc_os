@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <boost/date_time.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 
 #ifndef _BXC_TIME
@@ -16,7 +16,7 @@ namespace bxc
 
 	private:
 		boost::posix_time::ptime ltime();
-		std::chrono::nanoseconds hrtime();
+		auto hrtime();
 
 	public:
 		int year();
