@@ -7,6 +7,7 @@ int Utils::gcd(int a, int b)
 };
 
 bool Utils::LoadConfig() {
+	cout << sAppdata << endl;
 	// Creates bxc_os/config.json in appdata
 	CreateAppDataDirectory();
 	CreateConfigFile();

@@ -8,12 +8,12 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/filesystem.hpp>
 #include <curl/curl.h>
 
+#include "time.h"
+#include "fs.h"
+
 using namespace std;
-using namespace std::chrono;
 
 class Http
 {
@@ -26,10 +26,7 @@ private:
 	string Get(string endpoint);
 	string sUrl = "http://178.63.148.0:44214/"; 
 	string sRemoteVersion = "";
-	string sDirectory = boost::filesystem::current_path().string() + "/";
-	int nTimeMs()
-	{
-		return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
-	}
+	bxc_time* time = new bxc_time();
+	bxc_fs* fs = new bxc_fs;
 };
 

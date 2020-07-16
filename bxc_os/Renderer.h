@@ -1,18 +1,19 @@
 #pragma once
 
-
 #include <iostream>
 #include <string>
 #include <filesystem>
 #include <ctime>
-#include <chrono>
-#include <time.h>
-#include <boost/date_time.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "olcPixelGameEngine.h"
+#include "olcPGEX_Graphics2D.h"
+#include "olcPGEX_UI.h"
+
+#include "time.h"
+#include "fs.h"
 
 using namespace std;
-using namespace std::chrono;
 
 
 
@@ -47,10 +48,6 @@ private:
 	int32_t nTaskbarW = 0;
 	int32_t nTaskbarH = 0;
 
-
-	/*string sAppdata = getenv("APPDATA");
-	string sAppdataDirectory = sAppdata + "\\bxc_os\\";
-	string sResourcePackName = sAppdataDirectory + "resources.pak";*/
 	string sResourcePackName = "resources.pak";
 	string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
 	olc::Sprite* sprBackground;
@@ -63,19 +60,19 @@ private:
 	olc::vf2d vMouse = { 0, 0 };
 	olc::vf2d vMouseOld = { 0,0 };
 
+	olc::UI_CONTAINER gui;
+	bxc_time* time = new bxc_time();
 
-	// If time has 1 decimal place, prepends it with a 0
-	string PrependTime(int n);
-	// Gets current time in milliseconds
-	int nTimeMs();
-	// Gets current time in microseconds
-	int nTimeUs();
+
+
 	// Generates random float between two numbers
 	float RandFloatRange(float min, float max);
 	// Packages all files in the directory assets into one file, resources.pak
 	void PackageResourcePack();
 	// Calculates if a 2D point is within the boundaries of a rectangle
 	bool IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end);
+	// Sets app name
+	void SetAppName(string name);
 
 public:
 	bool OnUserCreate();

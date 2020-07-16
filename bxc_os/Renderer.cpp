@@ -4,31 +4,9 @@
 Renderer::Renderer()
 {
 	sAppName = "BXC OS";
+	SetAppName("initializing");
 }
 
-
-// =============
-// Private functions
-// =============
-
-string Renderer::PrependTime(int n)
-{
-	string sNum = to_string(n);
-	if (n < 10)
-		return "0" + sNum;
-	else
-		return sNum;
-}
-
-int Renderer::nTimeMs()
-{
-	return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count();
-}
-
-int Renderer::nTimeUs()
-{
-	return duration_cast<microseconds>(high_resolution_clock::now().time_since_epoch()).count();
-}
 
 float Renderer::RandFloatRange(float min, float max)
 {
@@ -62,9 +40,14 @@ bool Renderer::IsPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	return (inX && inY);
 }
 
+void Renderer::SetAppName(string name) {
+	sAppName = "BXC OS " + name;
+}
+
 
 bool Renderer::OnUserCreate()
 {
+	SetAppName("creating instance");
 	//PackageResourcePack();
 
 	// Loads Resource Pack
@@ -98,6 +81,7 @@ bool Renderer::OnUserCreate()
 
 bool Renderer::OnUserUpdate(float fElapsedTime)
 {
+
 	// If resources.pak failed loading, show error message
 	if (!bResourcePackLoaded)
 	{
@@ -131,22 +115,17 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 
 	
 	// Get current system time
-	boost::posix_time::ptime timeLocal = boost::posix_time::second_clock::local_time();
-
-	// Get specific time from the time object
-	int nYear = timeLocal.date().year();
-	int nMonth = timeLocal.date().month();
-	int nDay = timeLocal.date().day();
-	int nDayWeek = timeLocal.date().day_of_week();
-	int nHour = timeLocal.time_of_day().hours();
-	int nMin = timeLocal.time_of_day().minutes();
-	int nSec = timeLocal.time_of_day().seconds();
 	// Construct readable time strings
-	string sTime = PrependTime(nHour) + ":" + PrependTime(nMin);
-	string sTimeLong = PrependTime(nHour) + ":" + PrependTime(nMin) + ":" + PrependTime(nSec);
-	string sDate = PrependTime(nDay) + "." + PrependTime(nMonth) + "." + PrependTime(nYear);
-	string sDateVerbal = sDaysOrdinals[nDay] + " " + sMonths[nMonth] + " " + to_string(nYear);
-	string sDay = sDays[nDayWeek];
+	// HH::MM
+	string sTime =        time->prepend(time->hour()) + ":" + time->prepend(time->minute());
+	// HH:MM:SS
+	string sTimeLong =	  time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
+	// DD.MM.YYYY
+	string sDate =        time->prepend(time->day()) + "."  + time->prepend(time->month())  + "." + to_string(time->year());
+	// DD(st/nd/rd/th) MM YYYY
+	string sDateVerbal =  sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + to_string(time->year());
+	// monday, tuesday, ...
+	string sDay = sDays[time->day_of_week()];
 
 
 	if (bTimeBoxOpen)

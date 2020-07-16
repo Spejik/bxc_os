@@ -131,6 +131,7 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <TreatWarningAsError>false</TreatWarningAsError>
       <EnablePREfast>false</EnablePREfast>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,15 +143,22 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="fs.h" />
     <ClInclude Include="http.h" />
+    <ClInclude Include="main.hpp" />
+    <ClInclude Include="olcPGEX_Graphics2D.h" />
+    <ClInclude Include="olcPGEX_UI.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
+    <ClInclude Include="time.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fs.cpp" />
     <ClCompile Include="http.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="time.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
