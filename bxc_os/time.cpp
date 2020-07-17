@@ -18,7 +18,7 @@ bxc::time::time() {
 }
 
 boost::posix_time::ptime bxc::time::ltime () { return boost::posix_time::second_clock::local_time(); }
-auto bxc::time::hrtime() { return std::chrono::high_resolution_clock::now().time_since_epoch(); }
+auto bxc::time::hrtime() { return std::chrono::high_resolution_clock::now(); }
 
 int bxc::time::year       () { return ltime().date().year();        }
 int bxc::time::month      () { return ltime().date().month();       }
@@ -26,11 +26,11 @@ int bxc::time::day        () { return ltime().date().day();         }
 int bxc::time::day_of_week() { return ltime().date().day_of_week(); }
 
 int bxc::time::hour       () { return ltime().time_of_day().hours(); }
-int bxc::time::minute     () { return ltime().time_of_day().hours(); }
+int bxc::time::minute     () { return ltime().time_of_day().minutes(); }
 int bxc::time::second     () { return ltime().time_of_day().seconds(); }
 int bxc::time::millisecond() { return ltime().time_of_day().total_milliseconds(); }
-int bxc::time::microsecond() { return ltime().time_of_day().hours(); }
-int bxc::time::nanosecond () { return std::chrono::duration_cast<std::chrono::nanoseconds> (hrtime()).count(); }
+int bxc::time::microsecond() { return ltime().time_of_day().total_microseconds(); }
+int bxc::time::nanosecond () { return ltime().time_of_day().total_nanoseconds(); }
 
 std::string bxc::time::prepend(int n)
 {
