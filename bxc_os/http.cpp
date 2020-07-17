@@ -42,28 +42,49 @@ std::string Http::GetVersion() {
 
 float Http::GetUpdate() {
 	int nUpdateStart = time->millisecond();
-	std::stringstream sUpdateFiles(Get("update"));
-	std::vector<std::string> vUpdateFiles;
-	std::cout << "Available update files: " << sUpdateFiles.str() <<  std::endl;
-
-	// Splits string at every ";", so that we get only the file names
-	while (sUpdateFiles.good())
-	{
-		std::string sFile;
-		getline(sUpdateFiles, sFile, ';');
-		vUpdateFiles.push_back(sFile);
-	}
-
-	// If there is .old file, delete it, so we can rename the current file to that name
-	boost::filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
-
-	// Renames the executable file
-	boost::filesystem::rename(fs->sCurrentDirectory + "bxc_os.exe", fs->sCurrentDirectory + "__bxc_os.old.exe");
-
+	std::string sUpdateFiles = Get("update");
+	std::string sUpdateFilesChecksums = Get("update_checksums");
+	json vFiles = json::parse(sUpdateFiles);
+	json vFilesChecksums = json::parse(sUpdateFilesChecksums);
 	std::ofstream out;
 
+	std::cout << "Updateable files: " << vFiles << std::endl;
+
+	// Delete and rename any old files
+	//boost::filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
+	//boost::filesystem::rename(fs->sCurrentDirectory + "bxc_os.exe", fs->sCurrentDirectory + "__bxc_os.old.exe");
+
+	std::cout << fs->sCurrentDirectory << std::endl;
+	// Iterate over every file
+	for (int f = 0; f < vFiles.size(); f++) {
+		std::cout << vFiles[f] << std::endl;
+
+		// Read file
+
+		std::ifstream file(fs->sCurrentDirectory + (std::string)vFiles[f], std::ios::binary);
+		std::string sFileContent;
+
+		file.read(sFileContent.data(), RAND_MAX);
+		file.close();
+
+		std::cout << sFileContent << std::endl;
+
+		// Digest the file using sha256
+		std::string digest;
+		CryptoPP::SHA256 hash;
+
+		CryptoPP::StringSource foo(sFileContent, true,
+			new CryptoPP::HashFilter(hash,
+				new CryptoPP::HexEncoder(
+					new CryptoPP::StringSink(digest))));
+
+		std::cout << digest << std::endl;
+	}
+	
+	
+
 	// Individually gets each file and puts it into a file
-	for (auto & file : vUpdateFiles)
+	/*for (auto & file : vUpdateFiles)
 	{
 		std::string sResources = Get("update/" + file);
 		std::string sFile = fs->sCurrentDirectory + file;
@@ -73,7 +94,7 @@ float Http::GetUpdate() {
 		out.open(sFile, std::ofstream::binary);
 		out << sResources;
 		out.close();
-	}
+	}*/
 
 	int nUpdateEnd = time->millisecond();
 	return nUpdateEnd - nUpdateStart;

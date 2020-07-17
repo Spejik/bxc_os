@@ -11,6 +11,7 @@
 #include <curl/curl.h>
 #include <boost/filesystem.hpp>
 #include <cryptopp/sha.h>
+#include <cryptopp/hex.h>
 
 #include "time.h"
 #include "fs.h"
