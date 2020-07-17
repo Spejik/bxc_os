@@ -41,14 +41,17 @@ std::string Http::GetVersion() {
 
 
 float Http::GetUpdate() {
+	using hex_lower = cppcodec::hex_lower;
+
 	int nUpdateStart = time->millisecond();
 	std::string sUpdateFiles = Get("update");
 	std::string sUpdateFilesChecksums = Get("update_checksums");
-	json vFiles = json::parse(sUpdateFiles);
-	json vFilesChecksums = json::parse(sUpdateFilesChecksums);
+	json jFiles = json::parse(sUpdateFiles);
+	json jFilesChecksums = json::parse(sUpdateFilesChecksums);
+	json jFilesToDownload = json::array();
 	std::ofstream out;
 
-	std::cout << "Updateable files: " << vFiles << std::endl;
+	std::cout << "Updateable files: " << jFiles << std::endl;
 
 	// Delete and rename any old files
 	//boost::filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
@@ -56,34 +59,58 @@ float Http::GetUpdate() {
 
 	std::cout << fs->sCurrentDirectory << std::endl;
 	// Iterate over every file
-	for (int f = 0; f < vFiles.size(); f++) {
-		std::cout << vFiles[f] << std::endl;
+	for (int f = 0; f < jFiles.size(); f++) 
+	{
+		std::string sFile = (std::string)jFiles[f];
+		std::string sFilePath = fs->sCurrentDirectory + sFile;
+
+		std::cout << sFile << std::endl;
 
 		// Read file
-
-		std::ifstream file(fs->sCurrentDirectory + (std::string)vFiles[f], std::ios::binary);
 		std::string sFileContent;
+		std::ifstream readStream;
+		readStream.open(sFilePath, std::ios::binary);
 
-		file.read(sFileContent.data(), RAND_MAX);
-		file.close();
+		if (readStream.fail())
+			std::cout << "bxc::http::GetUpdate() - failed opening " << sFile << std::endl;
+		if (readStream.good()) 
+			sFileContent.assign(
+				(std::istreambuf_iterator<char>(readStream)),
+				(std::istreambuf_iterator<char>()));
 
-		std::cout << sFileContent << std::endl;
+		// Close read stream
+		readStream.close();
 
 		// Digest the file using sha256
-		std::string digest;
 		CryptoPP::SHA256 hash;
+		byte digest[CryptoPP::SHA256::DIGESTSIZE];
 
-		CryptoPP::StringSource foo(sFileContent, true,
-			new CryptoPP::HashFilter(hash,
-				new CryptoPP::HexEncoder(
-					new CryptoPP::StringSink(digest))));
+		hash.CalculateDigest(digest, (byte*)sFileContentHex.c_str(), sFileContentHex.length());
 
-		std::cout << digest << std::endl;
+		CryptoPP::HexEncoder encoder;
+		std::string output;
+		encoder.Attach(new CryptoPP::StringSink(output));
+		encoder.Put(digest, sizeof(digest));
+		encoder.MessageEnd();
+
+		// Put the hex into lowercase, because that's just how it's generated on the backend
+		boost::to_lower(output);
+
+		// If file checksum doesn't match with the online one, add the file to download queue
+		if (output != jFilesChecksums[sFile])
+		{
+			jFilesToDownload.push_back(sFile);
+			std::cout << "File's " << sFile << " checksum doesn't match, added it to the download queue." << std::endl;
+		}
+		else
+			std::cout << "File's " << sFile << " checksum matches." << std::endl;
+
+		std::cout << output << std::endl << std::endl;
 	}
 	
 	
 
-	// Individually gets each file and puts it into a file
+	// Gets each file and puts it into a file
 	/*for (auto & file : vUpdateFiles)
 	{
 		std::string sResources = Get("update/" + file);

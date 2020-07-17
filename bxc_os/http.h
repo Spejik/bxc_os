@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cryptopp/sha.h>
 #include <cryptopp/hex.h>
 

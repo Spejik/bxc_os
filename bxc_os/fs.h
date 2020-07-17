@@ -20,7 +20,7 @@ namespace bxc {
 		std::string sConfigFilePath = sAppdata + "\\bxc_os\\";
 		std::string sConfigFileName = "config.json";
 		std::string sConfigFileLocation = sConfigFilePath + sConfigFileName;
-		std::string sCurrentDirectory = boost::filesystem::current_path().string() + "/";
+		std::string sCurrentDirectory = boost::filesystem::current_path().string() + "\\";
 	};
 }
 #endif // _BXC_FS
