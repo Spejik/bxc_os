@@ -33,7 +33,7 @@ void Renderer::PackageResourcePack()
 }
 
 
-bool Renderer::o_isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
+bool Renderer::isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	bool inX = (point.x > start.x && point.x < end.x);
 	bool inY = (point.y > start.y && point.y < end.y);
 	
@@ -41,7 +41,10 @@ bool Renderer::o_isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) 
 }
 
 void Renderer::SetAppName(std::string name) {
-	sAppName = "BXC OS " + name;
+	if (name != "")
+		sAppName = "BXC OS - " + name;
+	else
+		sAppName = "BXC OS";
 }
 
 
@@ -76,12 +79,13 @@ bool Renderer::OnUserCreate()
 	EnableLayer(LayerBg, true);
 	
 
+
+	SetAppName("");
 	return true;
 }
 
 bool Renderer::OnUserUpdate(float fElapsedTime)
 {
-
 	// If resources.pak failed loading, show error message
 	if (!bResourcePackLoaded)
 	{
@@ -92,42 +96,71 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		return true;
 	}
 
-	// Clears the screen, so we don't have any pixels overlapping
-	Clear(olc::BLANK);
-
-	SetDrawTarget(LayerBg);
-	// === Background and darken
-	DrawDecal({ 0, 0 }, decBackground);
-	FillRectDecal({ 0, 0 }, { float(ScreenWidth()), float(ScreenHeight()) }, olc::Pixel(0, 0, 0, 100));
-	SetDrawTarget(LayerUi);
-
-	
-	// ===
-	// === Taskbar
-	FillRectDecal({ float(nTaskbarX), float(nTaskbarY) }, { float(nTaskbarW), float(nTaskbarH) }, olc::Pixel(20, 20, 30, 150));
-	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
-	// ===
-
+	// =======
+	// Logic
+	// =======
 	float fMouseX = (float)GetMouseX();
 	float fMouseY = (float)GetMouseY();
 
 	
 
 	
-	// Get current system time
+	// Time
 	// Construct readable time strings
 	// HH::MM
 	std::string sTime =        time->prepend(time->hour()) + ":" + time->prepend(time->minute());
 	// HH:MM:SS
-	std::string sTimeLong =	  time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
+	std::string sTimeLong =	   time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
 	// DD.MM.YYYY
-	std::string sDate =        time->prepend(time->day()) + "."  + time->prepend(time->month())  + "." + std::to_string(time->year());
+	std::string sDate =        time->prepend(time->day())  + "." + time->prepend(time->month())  + "." + std::to_string(time->year());
 	// DD(st/nd/rd/th) MM YYYY
-	std::string sDateVerbal =  sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + std::to_string(time->year());
+	std::string sDateVerbal =  sDaysOrdinals[time->day()]  + " " + sMonths[time->month()]        + " " + std::to_string(time->year());
 	// monday, tuesday, ...
-	std::string sDay = sDays[time->day_of_week()];
+	std::string sDay =         sDays[time->day_of_week()];
+
+	SetAppName(sDate + " " + sTimeLong);
+
+	// =======
+	// Listeners (clicking, buttons, ...)
+	// =======
+
+	if (GetMouse(0).bPressed)
+	{
+		// timebox
+		if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+			bTimeBoxOpen = !bTimeBoxOpen;
+	}
 
 
+	// =======
+	// Drawing
+	// =======
+
+	// Clears the screen
+	//Clear(olc::BLANK);
+
+	// Sets layer to background
+	SetDrawTarget(LayerBg);
+
+	// Background and darken
+	DrawDecal({ 0, 0 }, decBackground);
+	FillRectDecal({ 0, 0 }, { float(ScreenWidth()), float(ScreenHeight()) }, olc::Pixel(0, 0, 0, 100));
+
+	// Sets layer to UI
+	SetDrawTarget(LayerUi);
+
+	// Taskbar
+	FillRectDecal({ float(nTaskbarX), float(nTaskbarY) }, { float(nTaskbarW), float(nTaskbarH) }, olc::Pixel(20, 20, 30, 150));
+	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
+
+	// Inserts logo into taskbar
+	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
+
+	// Draws Time & Date
+	DrawStringDecal({ nTaskbarW - 85.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ nTaskbarW - 110.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
+
+	// Time box
 	if (bTimeBoxOpen)
 	{
 		float fTopX = nTaskbarW - fTimebarW;
@@ -138,32 +171,19 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		DrawStringDecal({ fTopX + 70.0f, fTopY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f });
 
 		if (bDrawDebugBoundaries)
-			DrawRect({ (int) fTopX + 1, (int) fTopY + 1 }, { (int) fTimebarW - 1, (int) fTimebarH -1 }, olc::RED);
-	
+			DrawRect({ (int)fTopX + 1, (int)fTopY + 1 }, { (int)fTimebarW - 1, (int)fTimebarH - 1 }, olc::RED);
+
 		if (GetMouse(0).bPressed)
 			// If user clicks somewhere else than on the timebox, close it
-			if (o_isPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
-				bTimeBoxOpen = false;			
+			if (!isPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
+				bTimeBoxOpen = false;
 	}
 
+	// Debug boundaries
 	if (bDrawDebugBoundaries)
 	{
 		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::GREEN);
 	}
-
-	if (GetMouse(0).bPressed)
-	{
-		// timebox
-		if (o_isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
-			bTimeBoxOpen = !bTimeBoxOpen;
-	}
-
-	// Inserts logo into taskbar
-	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
-
-	// Draws Time & Date
-	DrawStringDecal({ nTaskbarW - 85.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
-	DrawStringDecal({ nTaskbarW - 110.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
 
 
 

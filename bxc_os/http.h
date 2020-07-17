@@ -10,12 +10,19 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include <boost/filesystem.hpp>
+#include <cryptopp/sha.h>
 
 #include "time.h"
 #include "fs.h"
 
 #ifndef _BXC_HTTP
 #define _BXC_HTTP
+
+#ifndef _USING_JSON
+	#define _USING_JSON
+	#include <nlohmann/json.hpp>
+	using json = nlohmann::json;
+#endif
 
 class Http
 {

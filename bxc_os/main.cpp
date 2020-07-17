@@ -31,9 +31,8 @@ int main()
 	if (http->GetVersion() != APP_VERSION)
 		return Updater(http);
 
-	// Initializes Utils class
-	Utils* utils = new Utils();
-	utils->LoadConfig();
+	// Initializes class Utils
+	bxc::Utils* utils = new bxc::Utils();
 
 	// Window settings
 	int nWidth = 1280;

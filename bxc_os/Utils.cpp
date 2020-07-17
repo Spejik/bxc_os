@@ -1,19 +1,22 @@
 #include "Utils.h"
 
+bxc::Utils::Utils() {
+	LoadConfig();
+}
 
-int Utils::gcd(int a, int b) 
+int bxc::Utils::gcd(int a, int b)
 {
 	return (b == 0) ? a : gcd(b, a%b);
 };
 
-bool Utils::LoadConfig() {
+bool bxc::Utils::LoadConfig() {
 	// Creates bxc_os/config.json in appdata
 	CreateAppDataDirectory();
 	CreateConfigFile();
 
 	std::string sConfig;
 	// Reads the config file
-	std::ifstream File(sConfigFileLocation);
+	std::ifstream File(fs->sConfigFileLocation);
 	getline(File, sConfig);
 	File.close();
 
@@ -24,8 +27,8 @@ bool Utils::LoadConfig() {
 }
 
 // Serializes JSON config and writes it to the config file
-bool Utils::SaveConfig() {
-	std::ofstream File(sConfigFileLocation);
+bool bxc::Utils::SaveConfig() {
+	std::ofstream File(fs->sConfigFileLocation);
 	File << jsonConfig.dump();
 	File.close();
 
@@ -33,17 +36,17 @@ bool Utils::SaveConfig() {
 }
 
 
-int Utils::GetConfigIntField(std::string key)
+int bxc::Utils::GetConfigIntField(std::string key)
 {
 	try { return (int) jsonConfig[key]; }
 	catch (std::exception e) { return JSON_UNDEFINED_INT; }
 }
-bool Utils::GetConfigBoolField(std::string key)
+bool bxc::Utils::GetConfigBoolField(std::string key)
 {
 	try { return (bool) jsonConfig[key]; }
 	catch (std::exception e) { return false; }
 }
-std::string Utils::GetConfigStringField(std::string key)
+std::string bxc::Utils::GetConfigStringField(std::string key)
 {
 	try { return (std::string) jsonConfig[key]; }
 	catch (std::exception e) { return ""; }
@@ -51,17 +54,17 @@ std::string Utils::GetConfigStringField(std::string key)
 
 
 
-void Utils::SetConfigIntField(std::string key, int value)
+void bxc::Utils::SetConfigIntField(std::string key, int value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigBoolField(std::string key, bool value)
+void bxc::Utils::SetConfigBoolField(std::string key, bool value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
 }
-void Utils::SetConfigStringField(std::string key, std::string value)
+void bxc::Utils::SetConfigStringField(std::string key, std::string value)
 {
 	jsonConfig[key] = value;
 	SaveConfig();
@@ -69,10 +72,10 @@ void Utils::SetConfigStringField(std::string key, std::string value)
 
 
 // Creates bxc_os directory in %appdata%
-bool Utils::CreateAppDataDirectory()
+bool bxc::Utils::CreateAppDataDirectory()
 {
 	try { 
-		return boost::filesystem::create_directory(sConfigFilePath); 
+		return boost::filesystem::create_directory(fs->sConfigFilePath);
 	} 
 	catch (std::exception e) {
 		std::cout << e.what() <<  std::endl;
@@ -81,16 +84,16 @@ bool Utils::CreateAppDataDirectory()
 }
 
 // Cretes config.json file in bxc_os appdata
-bool Utils::CreateConfigFile() {
+bool bxc::Utils::CreateConfigFile() {
 	try {
 		struct stat buffer;
-		bool bConfigFileExists = (stat(sConfigFileLocation.c_str(), &buffer) == 0);
+		bool bConfigFileExists = (stat(fs->sConfigFileLocation.c_str(), &buffer) == 0);
 
 		if (bConfigFileExists)
 			return true;
 		else 
 		{
-			std::ofstream File(sConfigFileLocation);
+			std::ofstream File(fs->sConfigFileLocation);
 			File << "{}";
 			File.close();
 			return true;

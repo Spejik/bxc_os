@@ -153,7 +153,6 @@
     <ClInclude Include="http.h" />
     <ClInclude Include="main.hpp" />
     <ClInclude Include="olcPGEX_Graphics2D.h" />
-    <ClInclude Include="olcPGEX_UI.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="time.h" />

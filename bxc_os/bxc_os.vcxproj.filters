@@ -36,9 +36,6 @@
     <ClInclude Include="time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="olcPGEX_UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
