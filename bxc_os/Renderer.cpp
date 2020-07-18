@@ -124,11 +124,19 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Listeners (clicking, buttons, ...)
 	// =======
 
+	//if (GetMouse(0).bPressed && bTimeBoxOpen)
+	//	// If user clicks somewhere else than on the timebox, close it
+	//	if (!isPointInRect({ fMouseX, fMouseY }, { fTimebarX, fTimebarY }, { fTimebarW, fTimebarH }))
+	//		bTimeBoxOpen = false;
+
 	if (GetMouse(0).bPressed)
 	{
 		// timebox
 		if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+		{
 			bTimeBoxOpen = !bTimeBoxOpen;
+			std::cout << "k - " << bTimeBoxOpen << std::endl;
+		}
 	}
 
 
@@ -137,7 +145,7 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// =======
 
 	// Clears the screen
-	//Clear(olc::BLANK);
+	Clear(olc::BLANK);
 
 	// Sets layer to background
 	SetDrawTarget(LayerBg);
@@ -163,26 +171,19 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Time box
 	if (bTimeBoxOpen)
 	{
-		float fTopX = nTaskbarW - fTimebarW;
-		float fTopY = nTaskbarY - fTimebarH;
-		FillRectDecal({ fTopX, fTopY }, { fTimebarW, fTimebarH }, olc::Pixel(10, 10, 20, 200));
-		DrawStringDecal({ fTopX + 55.0f, fTopY + 25.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });
-		DrawStringDecal({ fTopX + 90.0f, fTopY + 55.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });
-		DrawStringDecal({ fTopX + 70.0f, fTopY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f });
-
-		if (bDrawDebugBoundaries)
-			DrawRect({ (int)fTopX + 1, (int)fTopY + 1 }, { (int)fTimebarW - 1, (int)fTimebarH - 1 }, olc::RED);
-
-		if (GetMouse(0).bPressed)
-			// If user clicks somewhere else than on the timebox, close it
-			if (!isPointInRect({ fMouseX, fMouseY }, { fTopX, fTopY }, { fTimebarW, fTimebarH }))
-				bTimeBoxOpen = false;
+		FillRectDecal({ fTimebarX, fTimebarY }, { fTimebarW, fTimebarH }, olc::Pixel(10, 10, 20, 200));
+		DrawStringDecal({ fTimebarX + 55.0f, fTimebarY + 25.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });
+		DrawStringDecal({ fTimebarX + 90.0f, fTimebarY + 55.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });
+		DrawStringDecal({ fTimebarX + 70.0f, fTimebarY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f });
 	}
 
 	// Debug boundaries
 	if (bDrawDebugBoundaries)
 	{
 		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::GREEN);
+
+		if (bTimeBoxOpen)
+			DrawRect({ (int)fTimebarX + 1, (int)fTimebarY + 1 }, { (int)fTimebarW - 1, (int)fTimebarH - 1 }, olc::RED);
 	}
 
 

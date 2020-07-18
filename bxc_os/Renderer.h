@@ -38,14 +38,19 @@ private:
 		         "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", 
 				 "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th", 
 				 "31st" };
+
+
+
 	float fTimebarW = 300.0f;
 	float fTimebarH = 350.0f;
-
+	float fTimebarX = nTaskbarW - fTimebarW;
+	float fTimebarY = nTaskbarY - fTimebarH;
 	int32_t nTaskbarHeight = 48;
 	int32_t nTaskbarX = 0;
 	int32_t nTaskbarY = 0;
 	int32_t nTaskbarW = 0;
 	int32_t nTaskbarH = 0;
+	
 
 	std::string sResourcePackName = "resources.pak";
 	std::string sResourcePackKey = "V StarBucks maji novou bagetu: santaislovesantaislife69 XXXl. Objednejte si ji nyni ve vasi mistni pobocce StarBucks";
