@@ -31,8 +31,8 @@ private:
 	bool bTimeBoxOpen = false;
 
 
-	std::string sMonths[12] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-	std::string sDays[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+	std::string sMonths[12] =		{ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+	std::string sDays[8] =			{ "invalid date", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 	std::string sDaysOrdinals[32] = { "invalid date",
 		          "1st",  "2nd",  "3rd",  "4th",  "5th",  "6th",  "7th",  "8th",  "9th",  "10th", 
 		         "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", 
@@ -41,10 +41,11 @@ private:
 
 
 
-	float fTimebarW = 300.0f;
-	float fTimebarH = 350.0f;
-	float fTimebarX = nTaskbarW - fTimebarW;
-	float fTimebarY = nTaskbarY - fTimebarH;
+	
+	float fTimeboxX = 0.0f;
+	float fTimeboxY = 0.0f;
+	float fTimeboxW = 0.0f;
+	float fTimeboxH = 0.0f;
 	int32_t nTaskbarHeight = 48;
 	int32_t nTaskbarX = 0;
 	int32_t nTaskbarY = 0;
@@ -64,7 +65,28 @@ private:
 	olc::vf2d vMouse = { 0, 0 };
 	olc::vf2d vMouseOld = { 0,0 };
 
+	enum eHighlightType {
+		NONE, HOVER, CLICK
+	};
+	std::vector<olc::vf2d> vHighlight = { { 0, 0 }, { 0, 0 } };
+	eHighlightType HighlightType = NONE;
+
 	bxc::time* time = new bxc::time();
+
+	// Function for setting variables that require ScreenWidth(), ScreenHeight(), etc.
+	inline void SetVariables() {
+		// Taskbar
+		nTaskbarX = 0;
+		nTaskbarY = ScreenHeight() - nTaskbarHeight;
+		nTaskbarW = ScreenWidth();
+		nTaskbarH = ScreenHeight();
+
+		// Timebox
+		fTimeboxW = ScreenWidth() * 26 / 100;
+		fTimeboxH = ScreenHeight() * 80 / 100;
+		fTimeboxX = nTaskbarW - fTimeboxW;
+		fTimeboxY = nTaskbarY - fTimeboxH;
+	}
 
 
 
@@ -76,6 +98,10 @@ private:
 	bool isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end);
 	// Sets app name
 	void SetAppName(std::string name);
+	// Draw a highlight on a certain area
+	void SetHighlight(olc::vf2d start, olc::vf2d end);
+	void UnsetHighlight();
+	void SetHighlightType(eHighlightType type);
 
 public:
 	bool OnUserCreate();

@@ -5,7 +5,7 @@
 #define no_init_all deprecated
 #define OLC_PGE_APPLICATION
 
-#define APP_VERSION "0.20"
+#define APP_VERSION "0.21"
 #define FULLSCREEN_ASK 1
 #define FULLSCREEN_ALWAYS 2
 #define FULLSCREEN_NEVER 3

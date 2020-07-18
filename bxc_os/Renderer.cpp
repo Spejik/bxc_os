@@ -47,6 +47,21 @@ void Renderer::SetAppName(std::string name) {
 		sAppName = "BXC OS";
 }
 
+void Renderer::SetHighlight(olc::vf2d start, olc::vf2d end) {
+	vHighlight[0] = start;
+	vHighlight[1] = end;
+}
+
+void Renderer::UnsetHighlight() {
+	vHighlight[0] = { 0, 0 };
+	vHighlight[1] = { 0, 0 };
+}
+
+void Renderer::SetHighlightType(eHighlightType type)
+{
+	HighlightType = type;
+}
+
 
 bool Renderer::OnUserCreate()
 {
@@ -59,11 +74,8 @@ bool Renderer::OnUserCreate()
 	else
 		return true;
 
-	// Set correct values to taskbar dimensions
-	nTaskbarX = 0;
-	nTaskbarY = ScreenHeight() - nTaskbarHeight;
-	nTaskbarW = ScreenWidth();
-	nTaskbarH = ScreenHeight();
+	// Set correct values for variables
+	SetVariables();
 
 	// Loads assets
 	sprBackground = new olc::Sprite("assets/background.png", RP);
@@ -102,21 +114,21 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	float fMouseX = (float)GetMouseX();
 	float fMouseY = (float)GetMouseY();
 
-	
 
-	
+
+
 	// Time
 	// Construct readable time strings
 	// HH::MM
-	std::string sTime =        time->prepend(time->hour()) + ":" + time->prepend(time->minute());
+	std::string sTime = time->prepend(time->hour()) + ":" + time->prepend(time->minute());
 	// HH:MM:SS
-	std::string sTimeLong =	   time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
+	std::string sTimeLong = time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
 	// DD.MM.YYYY
-	std::string sDate =        time->prepend(time->day())  + "." + time->prepend(time->month())  + "." + std::to_string(time->year());
+	std::string sDate = time->prepend(time->day()) + "." + time->prepend(time->month()) + "." + std::to_string(time->year());
 	// DD(st/nd/rd/th) MM YYYY
-	std::string sDateVerbal =  sDaysOrdinals[time->day()]  + " " + sMonths[time->month()]        + " " + std::to_string(time->year());
+	std::string sDateVerbal = sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + std::to_string(time->year());
 	// monday, tuesday, ...
-	std::string sDay =         sDays[time->day_of_week()];
+	std::string sDay = sDays[time->day_of_week()];
 
 	SetAppName(sDate + " " + sTimeLong);
 
@@ -129,13 +141,28 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	//	if (!isPointInRect({ fMouseX, fMouseY }, { fTimebarX, fTimebarY }, { fTimebarW, fTimebarH }))
 	//		bTimeBoxOpen = false;
 
-	if (GetMouse(0).bPressed)
+	// Hover
+	if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+	{
+		SetHighlight({ nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f });
+		SetHighlightType(HOVER);
+	}
+	else
+	{
+		UnsetHighlight();
+		SetHighlightType(NONE);
+	}
+
+	// Left mouse
+	if (GetMouse(0).bHeld)
 	{
 		// timebox
 		if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
 		{
-			bTimeBoxOpen = !bTimeBoxOpen;
-			std::cout << "k - " << bTimeBoxOpen << std::endl;
+			// Set the open state only once
+			if (GetMouse(0).bPressed)
+				bTimeBoxOpen = !bTimeBoxOpen;
+			SetHighlightType(CLICK);
 		}
 	}
 
@@ -171,10 +198,11 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 	// Time box
 	if (bTimeBoxOpen)
 	{
-		FillRectDecal({ fTimebarX, fTimebarY }, { fTimebarW, fTimebarH }, olc::Pixel(10, 10, 20, 200));
-		DrawStringDecal({ fTimebarX + 55.0f, fTimebarY + 25.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });
-		DrawStringDecal({ fTimebarX + 90.0f, fTimebarY + 55.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });
-		DrawStringDecal({ fTimebarX + 70.0f, fTimebarY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f });
+		FillRectDecal({ fTimeboxX, fTimeboxY }, { fTimeboxW, fTimeboxH }, olc::Pixel(10, 10, 20, 200));
+		
+		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 20.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });   // 06:54:20
+		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 50.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });	    // Sunday
+		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f }); // 1st April 2026
 	}
 
 	// Debug boundaries
@@ -183,9 +211,21 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::GREEN);
 
 		if (bTimeBoxOpen)
-			DrawRect({ (int)fTimebarX + 1, (int)fTimebarY + 1 }, { (int)fTimebarW - 1, (int)fTimebarH - 1 }, olc::RED);
+			DrawRect({ (int)fTimeboxX + 1, (int)fTimeboxY + 1 }, { (int)fTimeboxW - 1, (int)fTimeboxH - 1 }, olc::RED);
 	}
 
+	// Draw current highlight
+	switch (HighlightType) 
+	{
+		case HOVER:
+			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 20));
+			break;
+		case CLICK:
+			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 35));
+			break;
+		default:
+			break;
+	}
 
 
 	return true;
