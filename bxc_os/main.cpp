@@ -16,10 +16,8 @@ int Updater(Http* http) {
 
 	if (sDownload.rfind("y", 0) == 0) 
 	{
-		float nUpdated = http->GetUpdate();
-		std::cout << "Installed BXC OS v" << http->GetVersion() << " in " << nUpdated / 1000 << "s. Please, close this window and run it again." <<  std::endl <<  std::endl;
-		Sleep(60000);
-		return 0;
+		http->GetUpdate();
+		return 42;
 	}
 	if (sDownload.rfind("n", 0) == 0)
 		return 0;

@@ -29,12 +29,15 @@
 class Http
 {
 public:
+	// Remote server version
 	std::string GetVersion();
 	// Look up all files that need to be downloaded and downloads them :pepege:
-	float GetUpdate();
+	void GetUpdate();
 
 private:
 	std::string Get(std::string endpoint);
+	std::string ToHex(const std::string& s, bool upper_case);
+
 	std::string sUrl = "http://178.63.148.0:44214/";
 	std::string sRemoteVersion = "";
 	bxc::time* time = new bxc::time();
