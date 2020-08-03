@@ -96,7 +96,7 @@ int main()
 		nHeight = rect.bottom;
 	}
 
-	Renderer os;
+	bxc::renderer os;
 	if (os.Construct(nWidth, nHeight, nPixel, nPixel, bUseFullScreen, bUseVsync))
 		os.Start();
 	else

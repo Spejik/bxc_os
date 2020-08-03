@@ -157,6 +157,7 @@
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="fs.cpp" />
@@ -165,9 +166,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources.bxcpack" />
+    <None Include="example_pygame_program.py" />
+    <None Include="example_console_program.py" />
+    <None Include="resources.pak" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

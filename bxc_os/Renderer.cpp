@@ -1,19 +1,19 @@
 #include "Renderer.h"
 
 
-Renderer::Renderer()
+bxc::renderer::renderer()
 {
 	sAppName = "BXC OS";
 	SetAppName("initializing");
 }
 
 
-float Renderer::RandFloatRange(float min, float max)
+float bxc::renderer::RandFloatRange(float min, float max)
 {
 	return ((max - min) * ((float)rand() / RAND_MAX)) + min;
 }
 
-void Renderer::PackageResourcePack()
+void bxc::renderer::PackageResourcePack()
 {
 	std::string sAssetsPath = "assets/";
 
@@ -33,37 +33,37 @@ void Renderer::PackageResourcePack()
 }
 
 
-bool Renderer::isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
+bool bxc::renderer::isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	bool inX = (point.x > start.x && point.x < end.x);
 	bool inY = (point.y > start.y && point.y < end.y);
 	
 	return (inX && inY);
 }
 
-void Renderer::SetAppName(std::string name) {
+void bxc::renderer::SetAppName(std::string name) {
 	if (name != "")
 		sAppName = "BXC OS - " + name;
 	else
 		sAppName = "BXC OS";
 }
 
-void Renderer::SetHighlight(olc::vf2d start, olc::vf2d end) {
+void bxc::renderer::SetHighlight(olc::vf2d start, olc::vf2d end) {
 	vHighlight[0] = start;
 	vHighlight[1] = end;
 }
 
-void Renderer::UnsetHighlight() {
+void bxc::renderer::UnsetHighlight() {
 	vHighlight[0] = { 0, 0 };
 	vHighlight[1] = { 0, 0 };
 }
 
-void Renderer::SetHighlightType(eHighlightType type)
+void bxc::renderer::SetHighlightType(eHighlightType type)
 {
 	HighlightType = type;
 }
 
 
-bool Renderer::OnUserCreate()
+bool bxc::renderer::OnUserCreate()
 {
 	SetAppName("creating instance");
 	//PackageResourcePack();
@@ -96,7 +96,7 @@ bool Renderer::OnUserCreate()
 	return true;
 }
 
-bool Renderer::OnUserUpdate(float fElapsedTime)
+bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 {
 	// If resources.pak failed loading, show error message
 	if (!bResourcePackLoaded)
@@ -220,9 +220,12 @@ bool Renderer::OnUserUpdate(float fElapsedTime)
 		case HOVER:
 			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 20));
 			break;
+
 		case CLICK:
 			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 35));
 			break;
+
+		case NONE:
 		default:
 			break;
 	}

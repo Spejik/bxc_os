@@ -39,6 +39,9 @@
     <ClInclude Include="main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,9 +62,18 @@
     <ClCompile Include="time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources.bxcpack">
+    <None Include="resources.pak">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="example_console_program.py">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="example_pygame_program.py">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
