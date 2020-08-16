@@ -13,8 +13,7 @@ bxc::time::time() {
 		<< "- Second:      " << second() << std::endl
 		<< "- Millisecond: " << millisecond() << std::endl
 		<< "- Microsecond: " << microsecond() << std::endl
-		<< "- Nanosecond:  " << nanosecond() << std::endl
-		;
+		<< "- Nanosecond:  " << nanosecond() << std::endl;
 }
 
 boost::posix_time::ptime bxc::time::ltime () { return boost::posix_time::microsec_clock::local_time(); }

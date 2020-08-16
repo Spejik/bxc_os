@@ -27,8 +27,8 @@ int Updater(Http* http) {
 int main()
 {
 	Http* http = new Http();
-	if (http->GetVersion() != APP_VERSION)
-		return Updater(http);
+	/*if (http->GetVersion() != APP_VERSION)
+		return Updater(http);*/
 
 	// Initializes class Utils
 	bxc::Utils* utils = new bxc::Utils();

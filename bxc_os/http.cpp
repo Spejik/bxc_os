@@ -37,7 +37,7 @@ std::string Http::Get(std::string endpoint)
 		curl_easy_cleanup(curl);
 
 		if (result != CURLE_OK)
-			std::cout << curl_easy_strerror(result) <<  std::endl;
+			std::cout << curl_easy_strerror(result) << std::endl;
 
 		return sReadBuffer;
 	}

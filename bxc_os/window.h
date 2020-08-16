@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <boost/python.hpp>
 
 #include "olcPixelGameEngine.h"
 

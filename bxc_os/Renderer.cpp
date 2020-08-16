@@ -202,7 +202,7 @@ bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 		
 		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 20.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });   // 06:54:20
 		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 50.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });	    // Sunday
-		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f }); // 1st April 2026
+		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f }); // 1st April 2036
 	}
 
 	// Debug boundaries
