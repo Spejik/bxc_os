@@ -9,104 +9,93 @@ struct window {
 	std::string name;
 };
 
-int Updater(Http* http) {
-	std::string sDownload = "";
-	std::cout << "There is an update (" << http->GetVersion() << ") available! Download it? [(y)es/(n)o] : ";
-	std::cin >> sDownload;
+bool Updater() {
+	std::string response = "";
+	spdlog::info("Update {} is available! Download it? [(y)es/(n)o] : ", Http::GetVersion());
+	std::cin >> response;
 
-	if (sDownload.rfind("y", 0) == 0) 
+	if (response.starts_with("y")) 
 	{
-		http->GetUpdate();
-		return 42;
+		Http::GetUpdate();
+		return true;
 	}
-	if (sDownload.rfind("n", 0) == 0)
-		return 0;
+	return false;
 }
 
 
 int main()
 {
-	Http* http = new Http();
-	/*if (http->GetVersion() != APP_VERSION)
-		return Updater(http);*/
-
-	// Initializes class Utils
-	bxc::Utils* utils = new bxc::Utils();
+	Config::LoadConfig();
 
 	// Window settings
-	int nWidth = 1280;
-	int nHeight = 720;
-	int nPixel = 1;
-	bool bUseFullScreen = false;
-	bool bUseVsync = false;
+	int width = 1280;
+	int height = 720;
+	int pixel = 1;
+	bool useFullScreen = false;
+	bool useVsync = false;
 	
 	// Tries to read config's fullscreen value, else uses ask
-	int sCfgFullscreen = utils->GetConfigIntField("fullscreen");
+	int cfgFullscreen = Config::GetConfigIntField("fullscreen");
 
 	// Asks user for fullscreen settings
-	if (sCfgFullscreen == FULLSCREEN_ASK || sCfgFullscreen == JSON_UNDEFINED_INT)
+	if (cfgFullscreen == (int)FULLSCREEN::ASK || cfgFullscreen == JSON_UNDEFINED_INT)
 	{
 		// Fullscreen prompt
 		std::cout << "Run in fullscreen mode? [(y)es/(n)o/(a)lways/(ne)ver] : ";
-		std::string sFullscreen = "";
-		std::cin >> sFullscreen;
+		std::string fullscreen = "";
+		std::cin >> fullscreen;
 
-
-
-		if (sFullscreen.rfind("y", 0) == 0)
+		if (fullscreen.starts_with("y"))
 		{ 
-			bUseFullScreen = true; 
+			useFullScreen = true; 
 		}
-		else if (sFullscreen.rfind("ne", 0) == 0)
+		else if (fullscreen.starts_with("ne"))
 		{
-			bUseFullScreen = false;
-			utils->SetConfigIntField("fullscreen", FULLSCREEN_NEVER);
+			useFullScreen = false;
+			Config::SetConfigIntField("fullscreen", (int)FULLSCREEN::NEVER);
 		}
-		else if (sFullscreen.rfind("n", 0) == 0)
+		else if (fullscreen.starts_with("n"))
 		{
-			bUseFullScreen = false;
+			useFullScreen = false;
 		}
-		else if (sFullscreen.rfind("a", 0) == 0)
+		else if (fullscreen.starts_with("a"))
 		{
-			bUseFullScreen = true;
-			utils->SetConfigIntField("fullscreen", FULLSCREEN_ALWAYS);
+			useFullScreen = true;
+			Config::SetConfigIntField("fullscreen", (int)FULLSCREEN::ALWAYS);
 		}
 		else
 		{
-			bUseFullScreen = false;
+			useFullScreen = false;
 		}
 	}
-	else if (sCfgFullscreen == FULLSCREEN_ALWAYS)
-		bUseFullScreen = true;
-	else if (sCfgFullscreen == FULLSCREEN_NEVER)
-		bUseFullScreen = false;
+	else if (cfgFullscreen == (int)FULLSCREEN::ALWAYS)
+		useFullScreen = true;
+	else if (cfgFullscreen == (int)FULLSCREEN::NEVER)
+		useFullScreen = false;
 	else
 	{
-		std::cout << "Invalid config.json value: fullscreen > " << sCfgFullscreen <<  std::endl;
-		std::cin.get(); return 0;
+		spdlog::error("Invalid config.json value: fullscreen => {}", cfgFullscreen);
+		std::cin.get(); 
+		return 0;
 	}
 
-
 	// Gets screen dimensions, so the rendered image isn't stretched or something
-	if (bUseFullScreen)
+	if (useFullScreen)
 	{
 		RECT rect;
 		GetWindowRect(GetDesktopWindow(), &rect);
-		nWidth = rect.right;
-		nHeight = rect.bottom;
+		width = rect.right;
+		height = rect.bottom;
 	}
 
-	bxc::renderer os;
-	if (os.Construct(nWidth, nHeight, nPixel, nPixel, bUseFullScreen, bUseVsync))
+	bRenderer os;
+	if (os.Construct(width, height, pixel, pixel, useFullScreen, useVsync))
 		os.Start();
 	else
 	{
-		std::cout <<  std::endl
-			<< "    o===================================o    " <<  std::endl
-			<< "    |   Constructing BXC OS failed :(   |    " <<  std::endl
-			<< "    o===================================o    " <<  std::endl;
-
-		std::cin.get(); return 0;
+		spdlog::critical("Couldn't construct BXC OS class :(");
+		std::cin.get(); 
+		return 0;
 	}
 
 	return 0;

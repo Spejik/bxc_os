@@ -96,7 +96,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +131,7 @@
       <StringPooling>false</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ControlFlowGuard>false</ControlFlowGuard>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAs>CompileAsCpp</CompileAs>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -149,24 +149,20 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="fs.h" />
-    <ClInclude Include="http.h" />
+    <ClInclude Include="Filesystem.hpp" />
+    <ClInclude Include="Http.hpp" />
     <ClInclude Include="main.hpp" />
-    <ClInclude Include="olcPGEX_Graphics2D.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="olcPixelGameEngine.h" />
-    <ClInclude Include="time.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="window.h" />
+    <ClInclude Include="Renderer.hpp" />
+    <ClInclude Include="Time.hpp" />
+    <ClInclude Include="Utils.hpp" />
+    <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="fs.cpp" />
-    <ClCompile Include="http.cpp" />
+    <ClCompile Include="Http.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="time.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="window.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="example_pygame_program.py" />

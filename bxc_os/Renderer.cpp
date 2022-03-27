@@ -1,26 +1,28 @@
-#include "Renderer.h"
+#include "Renderer.hpp"
 
 
-bxc::renderer::renderer()
+bRenderer::bRenderer()
 {
 	sAppName = "BXC OS";
 	SetAppName("initializing");
 }
 
 
-float bxc::renderer::RandFloatRange(float min, float max)
+float bRenderer::RandFloatRange(float min, float max)
 {
-	return ((max - min) * ((float)rand() / RAND_MAX)) + min;
+	std::default_random_engine eng(rd());
+	std::uniform_real_distribution<> dist(min, max);
+	return dist(eng);
 }
 
-void bxc::renderer::PackageResourcePack()
+void bRenderer::PackageResourcePack()
 {
 	std::string sAssetsPath = "assets/";
 
-	for (auto & entry : boost::filesystem::recursive_directory_iterator(sAssetsPath))
+	for (auto & entry : std::filesystem::recursive_directory_iterator(sAssetsPath))
 	{
 		// Ignore plain directories
-		if (boost::filesystem::is_directory(entry))
+		if (std::filesystem::is_directory(entry))
 			continue;
 
 		// Ignore svg files, as they're the source files for most assets... and don't get encrypted
@@ -29,48 +31,48 @@ void bxc::renderer::PackageResourcePack()
 
 		RP->AddFile(entry.path().string());
 	}
-	RP->SavePack(sResourcePackName, sResourcePackKey);
+	RP->SavePack(resourcePackName, resourcePackKey);
 }
 
 
-bool bxc::renderer::isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
+bool bRenderer::isPointInRect(olc::vf2d point, olc::vf2d start, olc::vf2d end) {
 	bool inX = (point.x > start.x && point.x < end.x);
 	bool inY = (point.y > start.y && point.y < end.y);
 	
 	return (inX && inY);
 }
 
-void bxc::renderer::SetAppName(std::string name) {
+void bRenderer::SetAppName(std::string name) {
 	if (name != "")
 		sAppName = "BXC OS - " + name;
 	else
 		sAppName = "BXC OS";
 }
 
-void bxc::renderer::SetHighlight(olc::vf2d start, olc::vf2d end) {
-	vHighlight[0] = start;
-	vHighlight[1] = end;
+void bRenderer::SetHighlight(olc::vf2d start, olc::vf2d end) {
+	highlight[0] = start;
+	highlight[1] = end;
 }
 
-void bxc::renderer::UnsetHighlight() {
-	vHighlight[0] = { 0, 0 };
-	vHighlight[1] = { 0, 0 };
+void bRenderer::UnsetHighlight() {
+	highlight[0] = { 0, 0 };
+	highlight[1] = { 0, 0 };
 }
 
-void bxc::renderer::SetHighlightType(eHighlightType type)
+void bRenderer::SetHighlightType(eHighlightType type)
 {
 	HighlightType = type;
 }
 
 
-bool bxc::renderer::OnUserCreate()
+bool bRenderer::OnUserCreate()
 {
-	SetAppName("creating instance");
+	SetAppName("loading...");
 	//PackageResourcePack();
 
 	// Loads Resource Pack
-	if (RP->LoadPack(sResourcePackName, sResourcePackKey))
-		bResourcePackLoaded = true;
+	if (RP->LoadPack(resourcePackName, resourcePackKey))
+		resourcePackLoaded = true;
 	else
 		return true;
 
@@ -96,10 +98,10 @@ bool bxc::renderer::OnUserCreate()
 	return true;
 }
 
-bool bxc::renderer::OnUserUpdate(float fElapsedTime)
+bool bRenderer::OnUserUpdate(float fElapsedTime)
 {
 	// If resources.pak failed loading, show error message
-	if (!bResourcePackLoaded)
+	if (!resourcePackLoaded)
 	{
 		Clear(olc::Pixel(5, 5, 10));
 		olc::Pixel pTextC = olc::Pixel(200, 20, 15);
@@ -116,21 +118,20 @@ bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 
 
 
-
 	// Time
 	// Construct readable time strings
 	// HH::MM
-	std::string sTime = time->prepend(time->hour()) + ":" + time->prepend(time->minute());
+	std::string sTime = fmt::format("{:02}:{:02}", Time::hour(), Time::minute());
 	// HH:MM:SS
-	std::string sTimeLong = time->prepend(time->hour()) + ":" + time->prepend(time->minute()) + ":" + time->prepend(time->second());
+	std::string sTimeLong = fmt::format("{:02}:{:02}:{:02}", Time::hour(), Time::minute(), Time::second());
 	// DD.MM.YYYY
-	std::string sDate = time->prepend(time->day()) + "." + time->prepend(time->month()) + "." + std::to_string(time->year());
+	std::string sDate = fmt::format("{:02}.{:02}.{:02}", Time::day(), Time::month(), Time::year());
 	// DD(st/nd/rd/th) MM YYYY
-	std::string sDateVerbal = sDaysOrdinals[time->day()] + " " + sMonths[time->month()] + " " + std::to_string(time->year());
+	std::string sDateVerbal = fmt::format("{} {} {}", daysOrdinals[Time::day()], months[Time::month()], Time::year());
 	// monday, tuesday, ...
-	std::string sDay = sDays[time->day_of_week()];
+	std::string sDay = days[Time::day_of_week()];
 
-	SetAppName(sDate + " " + sTimeLong);
+	SetAppName(fmt::format("{} {}", sDate, sTimeLong));
 
 	// =======
 	// Listeners (clicking, buttons, ...)
@@ -142,9 +143,9 @@ bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 	//		bTimeBoxOpen = false;
 
 	// Hover
-	if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+	if (isPointInRect({ fMouseX, fMouseY }, { taskbarW - 116.0f, taskbarY + 0.0f }, { taskbarW + 0.0f, taskbarH + 0.0f }))
 	{
-		SetHighlight({ nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f });
+		SetHighlight({ taskbarW - 116.0f, taskbarY + 0.0f }, { taskbarW + 0.0f, taskbarH + 0.0f });
 		SetHighlightType(HOVER);
 	}
 	else
@@ -157,11 +158,11 @@ bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 	if (GetMouse(0).bHeld)
 	{
 		// timebox
-		if (isPointInRect({ fMouseX, fMouseY }, { nTaskbarW - 116.0f, nTaskbarY + 0.0f }, { nTaskbarW + 0.0f, nTaskbarH + 0.0f }))
+		if (isPointInRect({ fMouseX, fMouseY }, { taskbarW - 116.0f, taskbarY + 0.0f }, { taskbarW + 0.0f, taskbarH + 0.0f }))
 		{
 			// Set the open state only once
 			if (GetMouse(0).bPressed)
-				bTimeBoxOpen = !bTimeBoxOpen;
+				timeBoxOpen = !timeBoxOpen;
 			SetHighlightType(CLICK);
 		}
 	}
@@ -185,44 +186,44 @@ bool bxc::renderer::OnUserUpdate(float fElapsedTime)
 	SetDrawTarget(LayerUi);
 
 	// Taskbar
-	FillRectDecal({ float(nTaskbarX), float(nTaskbarY) }, { float(nTaskbarW), float(nTaskbarH) }, olc::Pixel(20, 20, 30, 150));
-	DrawLine({ nTaskbarX, nTaskbarY }, { nTaskbarW, nTaskbarY }, olc::WHITE);
+	FillRectDecal({ float(taskbarX), float(taskbarY) }, { float(taskbarW), float(taskbarH) }, olc::Pixel(20, 20, 30, 150));
+	DrawLine({ taskbarX, taskbarY }, { taskbarW, taskbarY }, olc::WHITE);
 
 	// Inserts logo into taskbar
-	DrawDecal({ float(nTaskbarX), float(nTaskbarY) }, decLogo);
+	DrawDecal({ float(taskbarX), float(taskbarY) }, decLogo);
 
 	// Draws Time & Date
-	DrawStringDecal({ nTaskbarW - 85.0f, nTaskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
-	DrawStringDecal({ nTaskbarW - 110.0f, nTaskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ taskbarW - 85.0f, taskbarH - 36.0f }, sTime, olc::WHITE, { 1.3f, 1.3f });
+	DrawStringDecal({ taskbarW - 110.0f, taskbarH - 24.0f }, sDate, olc::WHITE, { 1.3f, 1.3f });
 
 	// Time box
-	if (bTimeBoxOpen)
+	if (timeBoxOpen)
 	{
-		FillRectDecal({ fTimeboxX, fTimeboxY }, { fTimeboxW, fTimeboxH }, olc::Pixel(10, 10, 20, 200));
+		FillRectDecal({ timeboxX, timeboxY }, { timeboxW, timeboxH }, olc::Pixel(10, 10, 20, 200));
 		
-		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 20.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });   // 06:54:20
-		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 50.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });	    // Sunday
-		DrawStringDecal({ fTimeboxX + 20.0f, fTimeboxY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f }); // 1st April 2036
+		DrawStringDecal({ timeboxX + 20.0f, timeboxY + 20.0f }, sTimeLong, olc::WHITE, { 3.0f, 3.0f });   // 06:54:20
+		DrawStringDecal({ timeboxX + 20.0f, timeboxY + 50.0f }, sDay, olc::WHITE, { 1.75f, 1.75f });	    // Sunday
+		DrawStringDecal({ timeboxX + 20.0f, timeboxY + 70.0f }, sDateVerbal, olc::WHITE, { 1.5f, 1.5f }); // 1st April 2036
 	}
 
 	// Debug boundaries
-	if (bDrawDebugBoundaries)
+	if (drawDebugBoundaries)
 	{
-		DrawRect({ nTaskbarW - 116, nTaskbarY }, { nTaskbarW, nTaskbarH }, olc::GREEN);
+		DrawRect({ taskbarW - 116, taskbarY }, { taskbarW, taskbarH }, olc::GREEN);
 
-		if (bTimeBoxOpen)
-			DrawRect({ (int)fTimeboxX + 1, (int)fTimeboxY + 1 }, { (int)fTimeboxW - 1, (int)fTimeboxH - 1 }, olc::RED);
+		if (timeBoxOpen)
+			DrawRect({ (int)timeboxX + 1, (int)timeboxY + 1 }, { (int)timeboxW - 1, (int)timeboxH - 1 }, olc::RED);
 	}
 
 	// Draw current highlight
 	switch (HighlightType) 
 	{
 		case HOVER:
-			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 20));
+			FillRectDecal(highlight[0], highlight[1], olc::Pixel(230, 230, 230, 20));
 			break;
 
 		case CLICK:
-			FillRectDecal(vHighlight[0], vHighlight[1], olc::Pixel(230, 230, 230, 35));
+			FillRectDecal(highlight[0], highlight[1], olc::Pixel(230, 230, 230, 35));
 			break;
 
 		case NONE:

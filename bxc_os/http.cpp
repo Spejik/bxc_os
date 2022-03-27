@@ -1,8 +1,9 @@
-#include "http.h"
+#include "Http.hpp"
 
 
 std::string Http::ToHex(const std::string& s, bool upper_case)
 {
+	// We could use a lib like cppcodec, but this seems fine
 	std::ostringstream ret;
 
 	for (std::string::size_type i = 0; i < s.length(); ++i)
@@ -14,103 +15,73 @@ std::string Http::ToHex(const std::string& s, bool upper_case)
 	return ret.str();
 }
 
-
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-	((std::string*)userp)->append((char*)contents, size * nmemb);
-	return size * nmemb;
-}
-
 std::string Http::Get(std::string endpoint)
 {
-	CURL* curl = curl_easy_init();
-	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, (sUrl + endpoint).c_str());
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, false);
-
-		std::string sReadBuffer;
-		CURLcode result;
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&sReadBuffer);
-
-		result = curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-
-		if (result != CURLE_OK)
-			std::cout << curl_easy_strerror(result) << std::endl;
-
-		return sReadBuffer;
-	}
+	cpr::Response r = cpr::Get(cpr::Url{ fmt::format("{}{}.php", url, endpoint)});
+	return r.text;
 }
 
-
-
-std::string Http::GetVersion() 
+std::string Http::GetVersion()
 {
-	if (sRemoteVersion == "")
-		sRemoteVersion = Get("version");
-
-	return sRemoteVersion;
+	return Get("version");
 }
-
 
 void Http::GetUpdate() 
 {
-	double nUpdateStart = time->millisecond();
-	std::string sUpdateFiles = Get("update");
-	std::string sUpdateFilesChecksums = Get("update_checksums");
-	json jFiles = json::parse(sUpdateFiles);
-	json jFilesChecksums = json::parse(sUpdateFilesChecksums);
-	json jFilesToDownload = json::array();
-	std::ofstream out;
-	std::string sDelimeter = "==========================================";
+	spdlog::info("Updating...");
+	double updateStart = Time::millisecond();
 
-	std::cout << sDelimeter << std::endl;
-	std::cout << "Files in the installation package: " << jFiles << std::endl << std::endl;
+	std::string updateFiles = Get("update");
+	std::string updateFilesChecksums = Get("update_checksums");
 
+	json files = json::parse(updateFiles);
+	json filesChecksums = json::parse(updateFilesChecksums);
+	std::queue<std::string> filesQueue;
+
+	spdlog::debug("Files in the installation package: {}", files.dump());
 
 	// Delete and rename any old files
-	std::string sOldExecutableName = fs->sCurrentDirectory + "__bxc_os.old.exe";
-	std::string sNewExecutableName = fs->sCurrentDirectory + "bxc_os.exe";
+	std::string oldExecutableName = Filesystem::currentDirectory + "__bxc_os.old.exe";
+	std::string newExecutableName = Filesystem::currentDirectory + "bxc_os.exe";
 
 	// If .old file exists, remove it
-	if (boost::filesystem::exists(sOldExecutableName))
-		boost::filesystem::remove(fs->sCurrentDirectory + "__bxc_os.old.exe");
-
+	if (std::filesystem::exists(oldExecutableName))
+		std::filesystem::remove(Filesystem::currentDirectory + "__bxc_os.old.exe");
+	
 	// Rename the current .exe file to .old
-	if (boost::filesystem::exists(sNewExecutableName))
-		boost::filesystem::rename(fs->sCurrentDirectory + "bxc_os.exe", fs->sCurrentDirectory + "__bxc_os.old.exe");
+	if (std::filesystem::exists(newExecutableName))
+		std::filesystem::rename(Filesystem::currentDirectory + "bxc_os.exe", Filesystem::currentDirectory + "__bxc_os.old.exe");
 
-	std::cout << "Checking files:" << std::endl;
+	spdlog::info("Checking files...");
 
 	// Iterate over every file
-	for (int f = 0; f < jFiles.size(); f++) 
+	for (int f = 0; f < files.size(); f++) 
 	{
-		std::string sFile = (std::string)jFiles[f];
-		std::string sFilePath = fs->sCurrentDirectory + sFile;
+		std::string file = (std::string)files[f];
+		std::string filePath = Filesystem::currentDirectory + file;
 
 		// ===========
 		// Reading
 		// ===========
-		std::string sFileContent;
+		std::string fileContent;
 		std::ifstream readStream;
-		readStream.open(sFilePath, std::ios::binary);
+		readStream.open(filePath, std::ios::binary);
 
 		// If file wasn't found, we need to download it
 		if (readStream.fail())
 		{
-			jFilesToDownload.push_back(sFile);
-			std::cout << "- File '" << sFile << "' wasn't found, added it to the download queue." << std::endl;
+			filesQueue.push(file);
+			spdlog::debug("- File '{}' wasn't found, added it to the download queue.", file);
 			continue;
 		}
-		// If file was found, assign it's contents to a variable
+		// If file was found, assign its contents to a variable
 		if (readStream.good()) 
-			sFileContent.assign(
+			fileContent.assign(
 				(std::istreambuf_iterator<char>(readStream)),
 				(std::istreambuf_iterator<char>()));
 
 		// Make a hex out of the file, since that's how we hash it on the server
-		sFileContent = ToHex(sFileContent, false);
+		fileContent = ToHex(fileContent, false);
 
 		// Close read stream
 		readStream.close();
@@ -120,66 +91,59 @@ void Http::GetUpdate()
 		// ===========
 		// Digest the file using sha256
 		CryptoPP::SHA256 hash;
-		byte digest[CryptoPP::SHA256::DIGESTSIZE];
+		CryptoPP::byte digest[CryptoPP::SHA256::DIGESTSIZE];
 
-		hash.CalculateDigest(digest, (byte*)sFileContent.c_str(), sFileContent.length());
+		hash.CalculateDigest(digest, (CryptoPP::byte*)fileContent.c_str(), fileContent.length());
 
 		CryptoPP::HexEncoder encoder;
-		std::string sHashedFileContent;
-		encoder.Attach(new CryptoPP::StringSink(sHashedFileContent));
+		std::string hashedFileContent;
+		encoder.Attach(new CryptoPP::StringSink(hashedFileContent));
 		encoder.Put(digest, sizeof(digest));
 		encoder.MessageEnd();
 
 		// Put the hex into lowercase, because that's just how it's generated on the backend
-		boost::to_lower(sHashedFileContent);
+		boost::to_lower(hashedFileContent);
 
 		// ===========
 		// Comparing
 		// ===========
 
 		// If file checksum doesn't match with the online one, add the file to download queue
-		if (sHashedFileContent != jFilesChecksums[sFile])
+		if (hashedFileContent != filesChecksums[file])
 		{
-			jFilesToDownload.push_back(sFile);
-			std::cout << "- File's '" << sFile << "' checksum doesn't match, added it to the download queue." << std::endl;
+			filesQueue.push(file);
+			spdlog::debug("- Checksum of '{}' doesn't match, added to queue.", file);
 		}
 		else
-			std::cout << "- File's '" << sFile << "' checksum matches." << std::endl;
+			spdlog::debug("- Checksum of '{}' matches.", file);
 	}
 	
-	std::cout << std::endl << sDelimeter << std::endl;
-	std::cout << "Checking files done!" << std::endl
-		      << "Files that are going to be downloaded: " << jFilesToDownload << std::endl
-		      << "Downloading files: " << std::endl;
+	spdlog::info("All files checked!");
+	spdlog::info("Downloading files...");
 
-
-
-
-
+	std::ofstream out;
 
 	// Downloads files in the queue
-	for (auto & file : jFilesToDownload)
+	while (!filesQueue.empty())
 	{
-		// Casts json value to string
-		std::string sFile = (std::string)file;
-		std::string sFilePath = fs->sCurrentDirectory + sFile;
+		std::string file = filesQueue.front();
+		std::string filePath = Filesystem::currentDirectory + file;
 
 		// Downloads the file
-		std::string sFileContent = Get("update/" + sFile);
-		
+		std::string fileContent = Get("update/" + file);
 
-		std::cout << "- File '" << file << "' downloaded successfully" << std::endl;
+		spdlog::debug("File '{}' downloaded successfully.", file);
 
-		out.open(sFile, std::ofstream::binary);
-		out << sFileContent;
+		out.open(file, std::ofstream::binary);
+		out << fileContent;
 		out.close();
+
+		filesQueue.pop();
 	}
 
+	double updateEnd = Time::millisecond();
 
-	double nUpdateEnd = time->millisecond();
-
-	std::cout << std::endl << sDelimeter << std::endl;
-	std::cout << "BXC OS version " << GetVersion() << " installed in " << (nUpdateEnd - nUpdateStart) / 1000 << " seconds. " << std::endl 
-		      << "This window will automatically restart in about 30 seconds." << std::endl;
-	Sleep(30000);
+	spdlog::info("BXC OS {0} downloaded in {1} seconds.", GetVersion(), (updateEnd - updateStart) / 1000);
+	spdlog::info("This window will be restarted in 15 seconds.");
+	Sleep(15000);
 }

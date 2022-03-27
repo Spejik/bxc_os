@@ -5,10 +5,11 @@
 #define no_init_all deprecated
 #define OLC_PGE_APPLICATION
 
-#define APP_VERSION "0.21"
-#define FULLSCREEN_ASK 1
-#define FULLSCREEN_ALWAYS 2
-#define FULLSCREEN_NEVER 3
+#define APP_VERSION "0.3.0"
+enum class FULLSCREEN
+{
+	ASK, ALWAYS, NEVER
+};
 
 #ifndef _USING_JSON
 	#define _USING_JSON
@@ -17,8 +18,8 @@
 #endif
 
 
-#include "time.h"
-#include "fs.h"
-#include "Renderer.h"
-#include "Utils.h"
-#include "http.h"
+#include "Time.hpp"
+#include "Filesystem.hpp"
+#include "Http.hpp"
+#include "Utils.hpp"
+#include "Renderer.hpp"

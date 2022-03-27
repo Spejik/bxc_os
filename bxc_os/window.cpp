@@ -1,13 +1,14 @@
-#include "window.h"
+#include "Window.hpp"
 
-bxc::window::window(olc::vf2d position, olc::vf2d scale, std::string code)
+bWindow::bWindow(olc::vf2d position, olc::vf2d scale, std::string code)
+	: position(position)
+	, scale(scale)
+	, code(code)
 {
-	vPosition = position;
-	vScale = scale;
-	sCode = code;
 }
 
-bool bxc::window::Draw(olc::PixelGameEngine* pge)
+bool bWindow::Render(olc::PixelGameEngine* pge)
 {
+	pge->DrawRect(position, scale, olc::DARK_GREY);
 	return true;
 }
