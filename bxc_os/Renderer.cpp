@@ -25,7 +25,7 @@ void bRenderer::PackageResourcePack()
 		if (std::filesystem::is_directory(entry))
 			continue;
 
-		// Ignore svg files, as they're the source files for most assets... and don't get encrypted
+		// Ignore svg files, as they're the source files for most assets
 		if (entry.path().extension().string() == ".svg")
 			continue;
 
