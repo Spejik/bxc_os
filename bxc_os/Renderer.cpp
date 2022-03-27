@@ -11,7 +11,7 @@ bRenderer::bRenderer()
 float bRenderer::RandFloatRange(float min, float max)
 {
 	std::default_random_engine eng(rd());
-	std::uniform_real_distribution<> dist(min, max);
+	std::uniform_real_distribution<float> dist(min, max);
 	return dist(eng);
 }
 

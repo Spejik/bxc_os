@@ -32,17 +32,17 @@ bool Config::SaveConfig()
 int Config::GetConfigIntField(std::string key)
 {
 	try { return (int) jsonConfig[key]; }
-	catch (const std::exception& e) { return JSON_UNDEFINED_INT; }
+	catch ([[maybe_unused]] const std::exception& e) { return JSON_UNDEFINED_INT; }
 }
 bool Config::GetConfigBoolField(std::string key)
 {
 	try { return (bool) jsonConfig[key]; }
-	catch (const std::exception& e) { return false; }
+	catch ([[maybe_unused]] const std::exception& e) { return false; }
 }
 std::string Config::GetConfigStringField(std::string key)
 {
 	try { return (std::string) jsonConfig[key]; }
-	catch (const std::exception& e) { return ""; }
+	catch ([[maybe_unused]] const std::exception& e) { return ""; }
 }
 
 void Config::SetConfigIntField(std::string key, int value)

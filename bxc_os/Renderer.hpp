@@ -31,7 +31,7 @@ private:
 	std::random_device rd;
 
 	std::string months[12] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-	std::string days[8] = { "invalid date", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+	std::string days[7] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 	std::string daysOrdinals[32] = { "invalid date",
 				  "1st",  "2nd",  "3rd",  "4th",  "5th",  "6th",  "7th",  "8th",  "9th",  "10th",
 				 "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th",

@@ -5,7 +5,7 @@
 #define no_init_all deprecated
 #define OLC_PGE_APPLICATION
 
-#define APP_VERSION "0.3.0"
+#define APP_VERSION "0.3.1"
 enum class FULLSCREEN
 {
 	ASK, ALWAYS, NEVER
